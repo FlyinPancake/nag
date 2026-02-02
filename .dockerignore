@@ -1,0 +1,41 @@
+# Git
+.git/
+.gitignore
+
+# Rust build artifacts
+target/
+
+# Node modules (we reinstall in Docker)
+frontend/node_modules/
+
+# Frontend build output (rebuilt in Docker)
+frontend/dist/
+
+# IDE/Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment files (may contain secrets)
+.env
+.env.*
+!.env.example
+
+# Database files
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Documentation
+*.md
+!README.md
+
+# Test artifacts
+coverage/
+.nyc_output/

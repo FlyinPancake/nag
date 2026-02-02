@@ -1,0 +1,57 @@
+[tools]
+bun = "latest"
+"cargo:sqlx-cli" = { version = "0.8.6", features = "sqlite" }
+
+[tasks.build-frontend]
+description = "Build frontend assets"
+dir = "frontend"
+run = "bun run build"
+
+[tasks.run-backend]
+description = "Run development server"
+run = "cargo run -p nag-server --bin nag-server"
+env = { RUST_LOG = "debug" }
+
+[tasks.dev-backend]
+description = "Run backend development server with hot reloading"
+run = "mise watch -r -w crates/nag-server run-backend"
+
+[tasks.dev-frontend]
+description = "Run frontend development server"
+dir = "frontend"
+run = "bun dev"
+
+[tasks.dev]
+description = "Run both backend and frontend development servers"
+depends = ["dev-backend", "dev-frontend"]
+
+[tasks.gen-oapi]
+description = "Generate TypeScript API client from OpenAPI spec"
+dir = "frontend"
+run = "bun run generate-api-types"
+
+[tasks.add-migration]
+description = "Run database migrations"
+usage = """
+arg "<description>" help="Description of the migration"
+"""
+run = "sqlx migrate add --source ./crates/nag-server/migrations -r \"$usage_description\""
+
+[tasks.run-migrations]
+description = "Run database migrations"
+run = "sqlx migrate run --source ./crates/nag-server/migrations"
+
+[tasks.test-frontend]
+description = "Run frontend tests"
+dir = "frontend"
+run = "bun run test:run"
+
+[tasks.test-frontend-watch]
+description = "Run frontend tests in watch mode"
+dir = "frontend"
+run = "bun run test"
+
+[tasks.test-frontend-coverage]
+description = "Run frontend tests with coverage"
+dir = "frontend"
+run = "bun run test:coverage"

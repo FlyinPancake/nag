@@ -1,0 +1,10 @@
+target
+Cargo.lock
+
+# SQLite databases
+*.db
+*.db-shm
+*.db-wal
+
+# Environment
+.env

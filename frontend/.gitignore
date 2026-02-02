@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Build output (keep .gitkeep for rust-embed)
+dist/*
+!dist/.gitkeep
+
+# Generated files (TanStack Router)
+src/routeTree.gen.ts
+
+# Vite
+*.local
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# OS
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
