@@ -3,17 +3,17 @@
 # =============================================================================
 # Stage 1: Build frontend
 # =============================================================================
-FROM node:22-alpine AS frontend-builder
+FROM oven/bun:1-alpine AS frontend-builder
 
 WORKDIR /app/frontend
 
 # Install dependencies first (layer caching)
-COPY frontend/package.json frontend/package-lock.json ./
-RUN npm ci
+COPY frontend/package.json frontend/bun.lock ./
+RUN bun install --frozen-lockfile
 
 # Copy source and build
 COPY frontend/ ./
-RUN npm run build
+RUN bun run build
 
 # =============================================================================
 # Stage 2: Build backend
@@ -40,8 +40,8 @@ RUN cargo build --release --package nag-server
 # =============================================================================
 FROM alpine:3.21 AS runtime
 
-# Install runtime dependencies (CA certs for HTTPS, timezone data)
-RUN apk add --no-cache ca-certificates tzdata
+# Install runtime dependencies (CA certs for HTTPS, timezone data, su-exec for privilege dropping)
+RUN apk add --no-cache ca-certificates tzdata su-exec
 
 # Create non-root user
 RUN addgroup -g 1000 nag && adduser -u 1000 -G nag -s /bin/sh -D nag
@@ -51,15 +51,20 @@ WORKDIR /app
 # Copy binary from builder
 COPY --from=backend-builder /app/target/release/nag-server /app/nag-server
 
+# Copy and set up entrypoint script
+COPY docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 # Set ownership
 RUN chown -R nag:nag /app
-
-USER nag
 
 # Default environment variables
 ENV SERVER_PORT=3000
 ENV DATABASE_URL=sqlite:///app/data/nag.db
 ENV JSON_LOGS=true
+ENV TZ=UTC
+ENV PUID=1000
+ENV PGID=1000
 
 # Expose port
 EXPOSE 3000
@@ -71,5 +76,6 @@ VOLUME ["/app/data"]
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
 
-# Run the server
+# Set entrypoint and default command
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD ["/app/nag-server"]
