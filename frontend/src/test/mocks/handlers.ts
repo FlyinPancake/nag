@@ -26,9 +26,7 @@ export function createMockChore(overrides: Partial<Chore> = {}): Chore {
   };
 }
 
-export function createMockChoreWithDue(
-  overrides: Partial<ChoreWithDue> = {}
-): ChoreWithDue {
+export function createMockChoreWithDue(overrides: Partial<ChoreWithDue> = {}): ChoreWithDue {
   const baseChore = createMockChore(overrides);
   return {
     ...baseChore,
@@ -38,13 +36,12 @@ export function createMockChoreWithDue(
   };
 }
 
-export function createMockCompletion(
-  overrides: Partial<Completion> = {}
-): Completion {
+export function createMockCompletion(overrides: Partial<Completion> = {}): Completion {
   return {
     id: "completion-1",
     chore_id: "chore-1",
     completed_at: new Date().toISOString(),
+    created_at: new Date().toISOString(),
     notes: null,
     ...overrides,
   };
@@ -82,7 +79,7 @@ export const handlers = [
   // List chores
   http.get("/api/chores", () => {
     const response: PaginatedChores = {
-      data: mockChores,
+      items: mockChores,
       next_cursor: null,
     };
     return HttpResponse.json(response);
@@ -99,7 +96,7 @@ export const handlers = [
     if (!chore) {
       return HttpResponse.json(
         { title: "Not Found", status: 404, detail: "Chore not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
     return HttpResponse.json(chore);
@@ -122,7 +119,7 @@ export const handlers = [
     if (!chore) {
       return HttpResponse.json(
         { title: "Not Found", status: 404, detail: "Chore not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
     const updatedChore = { ...chore, ...body };
@@ -135,7 +132,7 @@ export const handlers = [
     if (!chore) {
       return HttpResponse.json(
         { title: "Not Found", status: 404, detail: "Chore not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
     return new HttpResponse(null, { status: 204 });
@@ -153,7 +150,7 @@ export const handlers = [
   // List completions
   http.get("/api/chores/:choreId/completions", ({ params }) => {
     const response: PaginatedCompletions = {
-      data: [createMockCompletion({ chore_id: params.choreId as string })],
+      items: [createMockCompletion({ chore_id: params.choreId as string })],
       next_cursor: null,
     };
     return HttpResponse.json(response);

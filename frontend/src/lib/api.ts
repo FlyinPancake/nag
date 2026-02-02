@@ -15,7 +15,7 @@ export class ApiError extends Error {
   constructor(
     public status: number,
     public title: string,
-    public detail?: string
+    public detail?: string,
   ) {
     super(detail || title);
     this.name = "ApiError";
@@ -23,10 +23,7 @@ export class ApiError extends Error {
 }
 
 // Base fetch wrapper with error handling
-async function apiFetch<T>(
-  url: string,
-  options?: RequestInit
-): Promise<T> {
+async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
   const response = await fetch(url, {
     ...options,
     headers: {
@@ -39,11 +36,7 @@ async function apiFetch<T>(
     // Try to parse RFC 7807 error response
     try {
       const error = await response.json();
-      throw new ApiError(
-        response.status,
-        error.title || response.statusText,
-        error.detail
-      );
+      throw new ApiError(response.status, error.title || response.statusText, error.detail);
     } catch (e) {
       if (e instanceof ApiError) throw e;
       throw new ApiError(response.status, response.statusText);
@@ -106,14 +99,14 @@ export const choresApi = {
 
   listCompletions: async (
     choreId: string,
-    params?: { cursor?: string; limit?: number }
+    params?: { cursor?: string; limit?: number },
   ): Promise<PaginatedCompletions> => {
     const searchParams = new URLSearchParams();
     if (params?.cursor) searchParams.set("cursor", params.cursor);
     if (params?.limit) searchParams.set("limit", params.limit.toString());
     const query = searchParams.toString();
     return apiFetch<PaginatedCompletions>(
-      `/api/chores/${choreId}/completions${query ? `?${query}` : ""}`
+      `/api/chores/${choreId}/completions${query ? `?${query}` : ""}`,
     );
   },
 };

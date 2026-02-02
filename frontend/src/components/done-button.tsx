@@ -20,12 +20,7 @@ interface Particle {
   size: number;
 }
 
-export function DoneButton({
-  onDone,
-  disabled,
-  className,
-  variant = "default",
-}: DoneButtonProps) {
+export function DoneButton({ onDone, disabled, className, variant = "default" }: DoneButtonProps) {
   const [state, setState] = useState<"idle" | "loading" | "success">("idle");
   const [particles, setParticles] = useState<Particle[]>([]);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -110,16 +105,13 @@ export function DoneButton({
                 : "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
             ],
 
-        className
+        className,
       )}
     >
       {/* Ripple effect on success */}
       {state === "success" && (
         <span
-          className={cn(
-            "absolute inset-0 rounded-[inherit]",
-            "animate-ripple-out bg-success/30"
-          )}
+          className={cn("absolute inset-0 rounded-[inherit]", "animate-ripple-out bg-success/30")}
         />
       )}
 
@@ -128,37 +120,30 @@ export function DoneButton({
         <span
           key={particle.id}
           className="absolute pointer-events-none animate-confetti-burst"
-          style={{
-            left: `${particle.x}%`,
-            top: `${particle.y}%`,
-            width: particle.size,
-            height: particle.size,
-            backgroundColor: particle.color,
-            borderRadius: Math.random() > 0.5 ? "50%" : "2px",
-            transform: `rotate(${Math.random() * 360}deg)`,
-            "--confetti-angle": `${particle.angle}rad`,
-            "--confetti-velocity": particle.velocity,
-          } as React.CSSProperties}
+          style={
+            {
+              left: `${particle.x}%`,
+              top: `${particle.y}%`,
+              width: particle.size,
+              height: particle.size,
+              backgroundColor: particle.color,
+              borderRadius: Math.random() > 0.5 ? "50%" : "2px",
+              transform: `rotate(${Math.random() * 360}deg)`,
+              "--confetti-angle": `${particle.angle}rad`,
+              "--confetti-velocity": particle.velocity,
+            } as React.CSSProperties
+          }
         />
       ))}
 
       {/* Button content */}
       <span className="relative z-10 flex items-center justify-center gap-2">
         {state === "loading" ? (
-          <Loader2
-            className={cn("animate-spin", isHero ? "h-6 w-6" : "h-4 w-4")}
-          />
+          <Loader2 className={cn("animate-spin", isHero ? "h-6 w-6" : "h-4 w-4")} />
         ) : state === "success" ? (
           <>
-            <Check
-              className={cn(
-                "animate-check-bounce",
-                isHero ? "h-6 w-6" : "h-4 w-4"
-              )}
-            />
-            {isHero && (
-              <span className="animate-pop-in">Done!</span>
-            )}
+            <Check className={cn("animate-check-bounce", isHero ? "h-6 w-6" : "h-4 w-4")} />
+            {isHero && <span className="animate-pop-in">Done!</span>}
           </>
         ) : (
           <>

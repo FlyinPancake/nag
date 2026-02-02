@@ -85,12 +85,7 @@ function schedulesEqual(a: Schedule, b: Schedule): boolean {
   return false;
 }
 
-export function ChoreForm({
-  open,
-  onOpenChange,
-  chore,
-  onSubmit,
-}: ChoreFormProps) {
+export function ChoreForm({ open, onOpenChange, chore, onSubmit }: ChoreFormProps) {
   const isEditing = !!chore;
   const [name, setName] = useState(chore?.name ?? "");
   const [description, setDescription] = useState(chore?.description ?? "");
@@ -145,7 +140,12 @@ export function ChoreForm({
       if (!isEditing) {
         setName("");
         setDescription("");
-        setSchedule({ type: "interval", intervalDays: 7, intervalTimeHour: 9, intervalTimeMinute: 0 });
+        setSchedule({
+          type: "interval",
+          intervalDays: 7,
+          intervalTimeHour: 9,
+          intervalTimeMinute: 0,
+        });
         setShowDescription(false);
       }
     } catch (err) {
@@ -216,7 +216,7 @@ export function ChoreForm({
                   onClick={() => setShowDescription(true)}
                   className={cn(
                     "flex items-center gap-2 text-sm text-muted-foreground",
-                    "hover:text-foreground transition-colors"
+                    "hover:text-foreground transition-colors",
                   )}
                 >
                   <StickyNote className="h-4 w-4" />
@@ -225,7 +225,10 @@ export function ChoreForm({
                 </button>
               ) : (
                 <div className="animate-slide-up-reveal">
-                  <Label htmlFor="description" className="text-muted-foreground flex items-center gap-1.5">
+                  <Label
+                    htmlFor="description"
+                    className="text-muted-foreground flex items-center gap-1.5"
+                  >
                     <StickyNote className="h-3.5 w-3.5" />
                     Notes
                   </Label>
@@ -248,9 +251,7 @@ export function ChoreForm({
             </div>
 
             {/* Error message */}
-            {error && (
-              <p className="text-sm text-destructive animate-pop-in">{error}</p>
-            )}
+            {error && <p className="text-sm text-destructive animate-pop-in">{error}</p>}
 
             {/* Submit button */}
             <div className="flex gap-3 pt-2">
@@ -262,11 +263,7 @@ export function ChoreForm({
               >
                 Cancel
               </Button>
-              <Button 
-                type="submit" 
-                disabled={isSubmitting} 
-                className="flex-1 gap-2"
-              >
+              <Button type="submit" disabled={isSubmitting} className="flex-1 gap-2">
                 {isSubmitting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : isEditing ? (

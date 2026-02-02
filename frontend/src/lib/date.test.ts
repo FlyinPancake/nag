@@ -22,89 +22,57 @@ describe("formatRelativeTime", () => {
 
   describe("future dates", () => {
     it("should format minutes in the future", () => {
-      expect(formatRelativeTime(new Date("2024-06-15T12:01:00"))).toBe(
-        "in 1 minute"
-      );
-      expect(formatRelativeTime(new Date("2024-06-15T12:30:00"))).toBe(
-        "in 30 minutes"
-      );
+      expect(formatRelativeTime(new Date("2024-06-15T12:01:00"))).toBe("in 1 minute");
+      expect(formatRelativeTime(new Date("2024-06-15T12:30:00"))).toBe("in 30 minutes");
     });
 
     it("should format hours in the future", () => {
-      expect(formatRelativeTime(new Date("2024-06-15T13:00:00"))).toBe(
-        "in 1 hour"
-      );
-      expect(formatRelativeTime(new Date("2024-06-15T15:00:00"))).toBe(
-        "in 3 hours"
-      );
+      expect(formatRelativeTime(new Date("2024-06-15T13:00:00"))).toBe("in 1 hour");
+      expect(formatRelativeTime(new Date("2024-06-15T15:00:00"))).toBe("in 3 hours");
     });
 
     it("should format tomorrow", () => {
-      expect(formatRelativeTime(new Date("2024-06-16T12:00:00"))).toBe(
-        "Tomorrow"
-      );
+      expect(formatRelativeTime(new Date("2024-06-16T12:00:00"))).toBe("Tomorrow");
     });
 
     it("should format days in the future", () => {
-      expect(formatRelativeTime(new Date("2024-06-18T12:00:00"))).toBe(
-        "in 3 days"
-      );
+      expect(formatRelativeTime(new Date("2024-06-18T12:00:00"))).toBe("in 3 days");
     });
 
     it("should format weeks in the future", () => {
-      expect(formatRelativeTime(new Date("2024-06-22T12:00:00"))).toBe(
-        "in 1 week"
-      );
+      expect(formatRelativeTime(new Date("2024-06-22T12:00:00"))).toBe("in 1 week");
     });
 
     it("should format as date for far future", () => {
-      expect(formatRelativeTime(new Date("2024-06-30T12:00:00"))).toBe(
-        "Jun 30"
-      );
+      expect(formatRelativeTime(new Date("2024-06-30T12:00:00"))).toBe("Jun 30");
     });
   });
 
   describe("past dates", () => {
     it("should format just now", () => {
-      expect(formatRelativeTime(new Date("2024-06-15T11:59:30"))).toBe(
-        "just now"
-      );
+      expect(formatRelativeTime(new Date("2024-06-15T11:59:30"))).toBe("just now");
     });
 
     it("should format minutes ago", () => {
-      expect(formatRelativeTime(new Date("2024-06-15T11:59:00"))).toBe(
-        "1 minute ago"
-      );
-      expect(formatRelativeTime(new Date("2024-06-15T11:30:00"))).toBe(
-        "30 minutes ago"
-      );
+      expect(formatRelativeTime(new Date("2024-06-15T11:59:00"))).toBe("1 minute ago");
+      expect(formatRelativeTime(new Date("2024-06-15T11:30:00"))).toBe("30 minutes ago");
     });
 
     it("should format hours ago", () => {
-      expect(formatRelativeTime(new Date("2024-06-15T11:00:00"))).toBe(
-        "1 hour ago"
-      );
-      expect(formatRelativeTime(new Date("2024-06-15T09:00:00"))).toBe(
-        "3 hours ago"
-      );
+      expect(formatRelativeTime(new Date("2024-06-15T11:00:00"))).toBe("1 hour ago");
+      expect(formatRelativeTime(new Date("2024-06-15T09:00:00"))).toBe("3 hours ago");
     });
 
     it("should format yesterday", () => {
-      expect(formatRelativeTime(new Date("2024-06-14T12:00:00"))).toBe(
-        "Yesterday"
-      );
+      expect(formatRelativeTime(new Date("2024-06-14T12:00:00"))).toBe("Yesterday");
     });
 
     it("should format days ago", () => {
-      expect(formatRelativeTime(new Date("2024-06-12T12:00:00"))).toBe(
-        "3 days ago"
-      );
+      expect(formatRelativeTime(new Date("2024-06-12T12:00:00"))).toBe("3 days ago");
     });
 
     it("should format weeks ago", () => {
-      expect(formatRelativeTime(new Date("2024-06-08T12:00:00"))).toBe(
-        "1 week ago"
-      );
+      expect(formatRelativeTime(new Date("2024-06-08T12:00:00"))).toBe("1 week ago");
     });
 
     it("should format as date for far past", () => {
@@ -133,27 +101,17 @@ describe("formatOverdue", () => {
 
   it("should format minutes overdue", () => {
     expect(formatOverdue(new Date("2024-06-15T11:59:00"))).toBe("1 min overdue");
-    expect(formatOverdue(new Date("2024-06-15T11:30:00"))).toBe(
-      "30 mins overdue"
-    );
+    expect(formatOverdue(new Date("2024-06-15T11:30:00"))).toBe("30 mins overdue");
   });
 
   it("should format hours overdue", () => {
-    expect(formatOverdue(new Date("2024-06-15T11:00:00"))).toBe(
-      "1 hour overdue"
-    );
-    expect(formatOverdue(new Date("2024-06-15T09:00:00"))).toBe(
-      "3 hours overdue"
-    );
+    expect(formatOverdue(new Date("2024-06-15T11:00:00"))).toBe("1 hour overdue");
+    expect(formatOverdue(new Date("2024-06-15T09:00:00"))).toBe("3 hours overdue");
   });
 
   it("should format days overdue", () => {
-    expect(formatOverdue(new Date("2024-06-14T12:00:00"))).toBe(
-      "1 day overdue"
-    );
-    expect(formatOverdue(new Date("2024-06-12T12:00:00"))).toBe(
-      "3 days overdue"
-    );
+    expect(formatOverdue(new Date("2024-06-14T12:00:00"))).toBe("1 day overdue");
+    expect(formatOverdue(new Date("2024-06-12T12:00:00"))).toBe("3 days overdue");
   });
 
   it("should accept string dates", () => {

@@ -21,9 +21,7 @@ export function CollapsibleSection({
   badge,
 }: CollapsibleSectionProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
-  const [contentHeight, setContentHeight] = useState<number | undefined>(
-    undefined
-  );
+  const [contentHeight, setContentHeight] = useState<number | undefined>(undefined);
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -41,20 +39,18 @@ export function CollapsibleSection({
         className={cn(
           "w-full flex items-center justify-between gap-3 p-4",
           "text-left transition-colors hover:bg-muted/50",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
         )}
       >
         <div className="flex items-center gap-2.5">
-          {icon && (
-            <span className="text-muted-foreground shrink-0">{icon}</span>
-          )}
+          {icon && <span className="text-muted-foreground shrink-0">{icon}</span>}
           <span className="font-medium text-sm">{title}</span>
           {badge && <span className="shrink-0">{badge}</span>}
         </div>
         <ChevronDown
           className={cn(
             "h-4 w-4 text-muted-foreground transition-transform duration-200",
-            isOpen && "rotate-180"
+            isOpen && "rotate-180",
           )}
         />
       </button>
@@ -63,7 +59,7 @@ export function CollapsibleSection({
       <div
         className={cn(
           "overflow-hidden transition-all duration-250 ease-out",
-          isOpen ? "opacity-100" : "opacity-0"
+          isOpen ? "opacity-100" : "opacity-0",
         )}
         style={{
           height: isOpen ? contentHeight : 0,

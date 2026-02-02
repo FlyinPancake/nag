@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 import { ChoreCard, ChoreCardSkeleton } from "./chore-card";
-import { render, screen, userEvent } from "@/test/test-utils";
+import { render, screen } from "@/test/test-utils";
 import { createMockChoreWithDue } from "@/test/mocks/handlers";
 
 describe("ChoreCard", () => {
@@ -22,13 +22,7 @@ describe("ChoreCard", () => {
   it("should render chore name", () => {
     const chore = createMockChoreWithDue({ name: "Clean the kitchen" });
 
-    render(
-      <ChoreCard
-        chore={chore}
-        onComplete={mockOnComplete}
-        onClick={mockOnClick}
-      />
-    );
+    render(<ChoreCard chore={chore} onComplete={mockOnComplete} onClick={mockOnClick} />);
 
     expect(screen.getByText("Clean the kitchen")).toBeInTheDocument();
   });
@@ -39,17 +33,9 @@ describe("ChoreCard", () => {
       description: "Wipe down counters and mop floor",
     });
 
-    render(
-      <ChoreCard
-        chore={chore}
-        onComplete={mockOnComplete}
-        onClick={mockOnClick}
-      />
-    );
+    render(<ChoreCard chore={chore} onComplete={mockOnComplete} onClick={mockOnClick} />);
 
-    expect(
-      screen.getByText("Wipe down counters and mop floor")
-    ).toBeInTheDocument();
+    expect(screen.getByText("Wipe down counters and mop floor")).toBeInTheDocument();
   });
 
   it("should display overdue status for overdue chores", () => {
@@ -59,13 +45,7 @@ describe("ChoreCard", () => {
       next_due: new Date("2024-06-14T12:00:00").toISOString(),
     });
 
-    render(
-      <ChoreCard
-        chore={chore}
-        onComplete={mockOnComplete}
-        onClick={mockOnClick}
-      />
-    );
+    render(<ChoreCard chore={chore} onComplete={mockOnComplete} onClick={mockOnClick} />);
 
     expect(screen.getByText("1 day overdue")).toBeInTheDocument();
   });
@@ -77,13 +57,7 @@ describe("ChoreCard", () => {
       next_due: new Date("2024-06-15T18:00:00").toISOString(),
     });
 
-    render(
-      <ChoreCard
-        chore={chore}
-        onComplete={mockOnComplete}
-        onClick={mockOnClick}
-      />
-    );
+    render(<ChoreCard chore={chore} onComplete={mockOnComplete} onClick={mockOnClick} />);
 
     expect(screen.getByText("Due today")).toBeInTheDocument();
   });
@@ -95,13 +69,7 @@ describe("ChoreCard", () => {
       next_due: new Date("2024-06-16T12:00:00").toISOString(),
     });
 
-    render(
-      <ChoreCard
-        chore={chore}
-        onComplete={mockOnComplete}
-        onClick={mockOnClick}
-      />
-    );
+    render(<ChoreCard chore={chore} onComplete={mockOnComplete} onClick={mockOnClick} />);
 
     expect(screen.getByText("Tomorrow")).toBeInTheDocument();
   });
@@ -113,13 +81,7 @@ describe("ChoreCard", () => {
       next_due: new Date("2024-06-18T12:00:00").toISOString(),
     });
 
-    render(
-      <ChoreCard
-        chore={chore}
-        onComplete={mockOnComplete}
-        onClick={mockOnClick}
-      />
-    );
+    render(<ChoreCard chore={chore} onComplete={mockOnComplete} onClick={mockOnClick} />);
 
     expect(screen.getByText(/in \d+ days/)).toBeInTheDocument();
   });
@@ -131,13 +93,7 @@ describe("ChoreCard", () => {
       cron_schedule: "0 9 * * 1",
     });
 
-    render(
-      <ChoreCard
-        chore={chore}
-        onComplete={mockOnComplete}
-        onClick={mockOnClick}
-      />
-    );
+    render(<ChoreCard chore={chore} onComplete={mockOnComplete} onClick={mockOnClick} />);
 
     expect(screen.getByText(/Monday/i)).toBeInTheDocument();
   });
@@ -152,13 +108,7 @@ describe("ChoreCard", () => {
       interval_time_minute: 0,
     });
 
-    render(
-      <ChoreCard
-        chore={chore}
-        onComplete={mockOnComplete}
-        onClick={mockOnClick}
-      />
-    );
+    render(<ChoreCard chore={chore} onComplete={mockOnComplete} onClick={mockOnClick} />);
 
     expect(screen.getByText(/Every week/i)).toBeInTheDocument();
   });
@@ -167,18 +117,14 @@ describe("ChoreCard", () => {
     const chore = createMockChoreWithDue({ name: "Clickable task" });
 
     const { container } = render(
-      <ChoreCard
-        chore={chore}
-        onComplete={mockOnComplete}
-        onClick={mockOnClick}
-      />
+      <ChoreCard chore={chore} onComplete={mockOnComplete} onClick={mockOnClick} />,
     );
 
     const card = container.querySelector(".cursor-pointer");
     if (card) {
       card.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     }
-    
+
     expect(mockOnClick).toHaveBeenCalledTimes(1);
   });
 
@@ -193,13 +139,7 @@ describe("ChoreCard", () => {
   it("should render Done button", () => {
     const chore = createMockChoreWithDue({ name: "Task with done button" });
 
-    render(
-      <ChoreCard
-        chore={chore}
-        onComplete={mockOnComplete}
-        onClick={mockOnClick}
-      />
-    );
+    render(<ChoreCard chore={chore} onComplete={mockOnComplete} onClick={mockOnClick} />);
 
     expect(screen.getByRole("button", { name: /done/i })).toBeInTheDocument();
   });

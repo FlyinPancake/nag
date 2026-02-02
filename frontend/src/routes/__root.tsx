@@ -56,11 +56,7 @@ function RootLayoutInner() {
             {/* Right side actions */}
             <div className="flex items-center gap-2">
               <Link to="/chores">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label="View all chores"
-                >
+                <Button variant="ghost" size="icon" aria-label="View all chores">
                   <ListTodo className="h-5 w-5" />
                 </Button>
               </Link>

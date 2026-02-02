@@ -45,7 +45,7 @@ export function ChoreCard({ chore, onComplete, onClick }: ChoreCardProps) {
         "border-l-4",
         status === "overdue" && "border-l-overdue",
         status === "dueToday" && "border-l-due-today",
-        status === "upcoming" && "border-l-border"
+        status === "upcoming" && "border-l-border",
       )}
       onClick={onClick}
     >
@@ -54,22 +54,18 @@ export function ChoreCard({ chore, onComplete, onClick }: ChoreCardProps) {
           {/* Left side: chore info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <h3 className="font-semibold text-foreground truncate">
-                {chore.name}
-              </h3>
+              <h3 className="font-semibold text-foreground truncate">{chore.name}</h3>
               <Badge
                 variant={
                   status === "overdue"
                     ? "overdue"
                     : status === "dueToday"
-                    ? "dueToday"
-                    : "secondary"
+                      ? "dueToday"
+                      : "secondary"
                 }
                 className="shrink-0"
               >
-                {status === "overdue" && (
-                  <AlertCircle className="h-3 w-3 mr-1" />
-                )}
+                {status === "overdue" && <AlertCircle className="h-3 w-3 mr-1" />}
                 {status === "dueToday" && <Clock className="h-3 w-3 mr-1" />}
                 {getDueText()}
               </Badge>
@@ -86,24 +82,19 @@ export function ChoreCard({ chore, onComplete, onClick }: ChoreCardProps) {
                   ? formatIntervalHuman(
                       chore.interval_days,
                       chore.interval_time_hour,
-                      chore.interval_time_minute
+                      chore.interval_time_minute,
                     )
                   : formatCronHuman(chore.cron_schedule ?? "")}
               </span>
             </div>
 
             {chore.description && (
-              <p className="mt-2 text-sm text-muted-foreground line-clamp-1">
-                {chore.description}
-              </p>
+              <p className="mt-2 text-sm text-muted-foreground line-clamp-1">{chore.description}</p>
             )}
           </div>
 
           {/* Right side: done button */}
-          <div
-            className="shrink-0"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
             <DoneButton onDone={() => onComplete(chore.id)} />
           </div>
         </div>

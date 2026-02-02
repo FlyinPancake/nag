@@ -22,13 +22,12 @@
     "noUncheckedSideEffectImports": true,
 
     /* Path aliases */
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"],
     },
 
     /* Testing */
-    "types": ["vitest/globals"]
+    "types": ["./vitest/globals"],
   },
-  "include": ["src"]
+  "include": ["src"],
 }

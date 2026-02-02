@@ -24,19 +24,10 @@ describe("choreKeys", () => {
       "list",
       { cursor: "abc", limit: 10 },
     ]);
-    expect(choreKeys.due(true)).toEqual([
-      "chores",
-      "due",
-      { includeUpcoming: true },
-    ]);
+    expect(choreKeys.due(true)).toEqual(["chores", "due", { includeUpcoming: true }]);
     expect(choreKeys.details()).toEqual(["chores", "detail"]);
     expect(choreKeys.detail("123")).toEqual(["chores", "detail", "123"]);
-    expect(choreKeys.completions("123")).toEqual([
-      "chores",
-      "completions",
-      "123",
-      undefined,
-    ]);
+    expect(choreKeys.completions("123")).toEqual(["chores", "completions", "123", undefined]);
   });
 });
 
@@ -52,8 +43,8 @@ describe("useChores", () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(result.current.data?.data).toHaveLength(2);
-    expect(result.current.data?.data[0].name).toBe("Clean kitchen");
+    expect(result.current.data?.items).toHaveLength(2);
+    expect(result.current.data?.items[0].name).toBe("Clean kitchen");
   });
 
   it("should fetch chores with pagination params", async () => {
@@ -65,7 +56,7 @@ describe("useChores", () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(result.current.data?.data).toBeDefined();
+    expect(result.current.data?.items).toBeDefined();
   });
 });
 
@@ -201,8 +192,8 @@ describe("useCompletions", () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(result.current.data?.data).toHaveLength(1);
-    expect(result.current.data?.data[0].chore_id).toBe("chore-1");
+    expect(result.current.data?.items).toHaveLength(1);
+    expect(result.current.data?.items[0].chore_id).toBe("chore-1");
   });
 
   it("should not fetch when choreId is empty", () => {

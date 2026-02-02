@@ -1,15 +1,7 @@
 // Utility functions for parsing and displaying schedules (cron and interval)
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const DAYS_FULL = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
+const DAYS_FULL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 // ============================================================================
 // Schedule Types
@@ -73,10 +65,10 @@ export function daysToInterval(days: number): { value: number; unit: IntervalUni
 export function formatIntervalHuman(
   days: number,
   hour?: number | null,
-  minute?: number | null
+  minute?: number | null,
 ): string {
   const { value, unit } = daysToInterval(days);
-  
+
   let intervalText: string;
   if (value === 1) {
     // "Every day", "Every week", "Every month"
@@ -85,13 +77,13 @@ export function formatIntervalHuman(
     // "Every 2 days", "Every 3 weeks", "Every 2 months"
     intervalText = `Every ${value} ${unit}`;
   }
-  
+
   // Add time if specified
   if (hour !== undefined && hour !== null) {
     const timeStr = formatTime(hour, minute ?? 0);
     intervalText += ` at ${timeStr}`;
   }
-  
+
   return intervalText;
 }
 
@@ -105,7 +97,7 @@ export function formatScheduleHuman(schedule: Schedule): string {
     return formatIntervalHuman(
       schedule.intervalDays,
       schedule.intervalTimeHour,
-      schedule.intervalTimeMinute
+      schedule.intervalTimeMinute,
     );
   }
 }
@@ -217,17 +209,10 @@ export function formatCronHuman(cron: string): string {
       if (days.length === 1) {
         return `Every ${DAYS_FULL[days[0]]} at ${time}`;
       }
-      if (
-        days.length === 5 &&
-        days.every((d) => d >= 1 && d <= 5)
-      ) {
+      if (days.length === 5 && days.every((d) => d >= 1 && d <= 5)) {
         return `Weekdays at ${time}`;
       }
-      if (
-        days.length === 2 &&
-        days.includes(0) &&
-        days.includes(6)
-      ) {
+      if (days.length === 2 && days.includes(0) && days.includes(6)) {
         return `Weekends at ${time}`;
       }
       return `${days.map((d) => DAYS[d]).join(", ")} at ${time}`;
@@ -236,7 +221,7 @@ export function formatCronHuman(cron: string): string {
     case "monthly":
       return `${ordinal(parsed.dayOfMonth!)} of every month at ${formatTime(
         parsed.hour!,
-        parsed.minute!
+        parsed.minute!,
       )}`;
 
     case "custom":
@@ -305,7 +290,7 @@ export interface Occurrence {
 export function getNextOccurrences(
   schedule: Schedule,
   count: number = 4,
-  from: Date = new Date()
+  from: Date = new Date(),
 ): Occurrence[] {
   const occurrences: Occurrence[] = [];
 
@@ -431,7 +416,20 @@ function formatDateLabel(date: Date, from: Date): string {
   if (diffDays < 7) return DAYS_FULL[date.getDay()];
 
   // Format as "Mon, Feb 3"
-  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
   return `${DAYS[date.getDay()]}, ${monthNames[date.getMonth()]} ${date.getDate()}`;
 }
 

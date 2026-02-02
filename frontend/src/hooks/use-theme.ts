@@ -4,9 +4,7 @@ type Theme = "light" | "dark" | "system";
 
 function getSystemTheme(): "light" | "dark" {
   if (typeof window === "undefined") return "light";
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
 function getStoredTheme(): Theme {
@@ -28,7 +26,7 @@ function applyTheme(theme: Theme) {
 export function useTheme() {
   const [theme, setThemeState] = useState<Theme>(getStoredTheme);
   const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">(() =>
-    theme === "system" ? getSystemTheme() : theme
+    theme === "system" ? getSystemTheme() : theme,
   );
 
   // Apply theme on mount and when theme changes

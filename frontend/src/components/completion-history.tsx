@@ -16,9 +16,10 @@ interface CompletionHistoryProps {
  * Calculate streak from completions
  * A streak is consecutive completions within expected interval
  */
-function calculateStreak(
-  completions: Array<{ completed_at: string }>
-): { count: number; isActive: boolean } {
+function calculateStreak(completions: Array<{ completed_at: string }>): {
+  count: number;
+  isActive: boolean;
+} {
   if (completions.length === 0) return { count: 0, isActive: false };
 
   // Simple streak: count recent completions in last 7 days
@@ -38,8 +39,7 @@ function calculateStreak(
   // Check if there's a completion in the last 48 hours for "active" status
   const fortyEightHoursAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000);
   const isActive =
-    completions.length > 0 &&
-    new Date(completions[0].completed_at) >= fortyEightHoursAgo;
+    completions.length > 0 && new Date(completions[0].completed_at) >= fortyEightHoursAgo;
 
   return { count, isActive };
 }
@@ -48,7 +48,7 @@ function calculateStreak(
  * Generate mini calendar data for last 7 days
  */
 function generateMiniCalendar(
-  completions: Array<{ completed_at: string }>
+  completions: Array<{ completed_at: string }>,
 ): Array<{ date: Date; hasCompletion: boolean }> {
   const days: Array<{ date: Date; hasCompletion: boolean }> = [];
   const now = new Date();
@@ -58,7 +58,7 @@ function generateMiniCalendar(
     completions.map((c) => {
       const d = new Date(c.completed_at);
       return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
-    })
+    }),
   );
 
   // Generate last 7 days
@@ -76,10 +76,7 @@ function generateMiniCalendar(
   return days;
 }
 
-export function CompletionHistory({
-  choreId,
-  compact = false,
-}: CompletionHistoryProps) {
+export function CompletionHistory({ choreId, compact = false }: CompletionHistoryProps) {
   const { data, isLoading } = useCompletions(choreId, { limit: 10 });
   const deleteCompletion = useDeleteCompletion();
 
@@ -120,8 +117,7 @@ export function CompletionHistory({
   }
 
   const completions = data?.items ?? [];
-  const { count: streakCount, isActive: streakActive } =
-    calculateStreak(completions);
+  const { count: streakCount, isActive: streakActive } = calculateStreak(completions);
   const miniCalendar = generateMiniCalendar(completions);
 
   if (completions.length === 0) {
@@ -130,9 +126,7 @@ export function CompletionHistory({
         <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-muted/50 mb-3">
           <Calendar className="h-5 w-5 text-muted-foreground" />
         </div>
-        <p className="text-sm text-muted-foreground">
-          No completions yet
-        </p>
+        <p className="text-sm text-muted-foreground">No completions yet</p>
         <p className="text-xs text-muted-foreground/70 mt-1">
           Mark this chore as done to start tracking
         </p>
@@ -149,7 +143,7 @@ export function CompletionHistory({
             "flex items-center gap-2.5 px-3 py-2 rounded-xl",
             streakActive
               ? "bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/20"
-              : "bg-muted/50"
+              : "bg-muted/50",
           )}
         >
           <div
@@ -157,19 +151,16 @@ export function CompletionHistory({
               "flex items-center justify-center h-8 w-8 rounded-full",
               streakActive
                 ? "bg-gradient-to-br from-orange-500 to-amber-500 text-white animate-streak-flame"
-                : "bg-muted text-muted-foreground"
+                : "bg-muted text-muted-foreground",
             )}
           >
             <Flame className="h-4 w-4" />
           </div>
           <div>
             <p className="text-sm font-semibold">
-              {streakCount} {streakCount === 1 ? "completion" : "completions"}{" "}
-              this week
+              {streakCount} {streakCount === 1 ? "completion" : "completions"} this week
             </p>
-            {streakActive && (
-              <p className="text-xs text-muted-foreground">Keep it going!</p>
-            )}
+            {streakActive && <p className="text-xs text-muted-foreground">Keep it going!</p>}
           </div>
         </div>
       )}
@@ -184,9 +175,7 @@ export function CompletionHistory({
 
           return (
             <div key={i} className="flex flex-col items-center gap-1">
-              <span className="text-[10px] text-muted-foreground uppercase">
-                {dayName}
-              </span>
+              <span className="text-[10px] text-muted-foreground uppercase">{dayName}</span>
               <div
                 className={cn(
                   "h-8 w-8 rounded-lg flex items-center justify-center transition-all",
@@ -194,15 +183,13 @@ export function CompletionHistory({
                     ? "bg-success/20 border-2 border-success/40"
                     : "bg-muted/30 border border-border",
                   isToday && !day.hasCompletion && "border-primary/30",
-                  day.hasCompletion && "animate-timeline-dot"
+                  day.hasCompletion && "animate-timeline-dot",
                 )}
                 style={{
                   animationDelay: `${i * 50}ms`,
                 }}
               >
-                {day.hasCompletion && (
-                  <Check className="h-3.5 w-3.5 text-success" />
-                )}
+                {day.hasCompletion && <Check className="h-3.5 w-3.5 text-success" />}
               </div>
             </div>
           );
@@ -220,7 +207,7 @@ export function CompletionHistory({
               key={completion.id}
               className={cn(
                 "flex items-start gap-3 py-2.5 pl-0 group relative",
-                "animate-stagger-fade"
+                "animate-stagger-fade",
               )}
               style={{
                 animationDelay: `${index * 60}ms`,
@@ -230,7 +217,7 @@ export function CompletionHistory({
               <div
                 className={cn(
                   "relative z-10 h-4 w-4 rounded-full shrink-0 mt-0.5",
-                  "bg-success/20 border-2 border-success flex items-center justify-center"
+                  "bg-success/20 border-2 border-success flex items-center justify-center",
                 )}
               >
                 <div className="h-1.5 w-1.5 rounded-full bg-success" />
@@ -238,9 +225,7 @@ export function CompletionHistory({
 
               {/* Content */}
               <div className="flex-1 min-w-0 pr-8">
-                <p className="text-sm font-medium">
-                  {formatRelativeTime(completion.completed_at)}
-                </p>
+                <p className="text-sm font-medium">{formatRelativeTime(completion.completed_at)}</p>
                 <p className="text-xs text-muted-foreground">
                   {formatDateTime(completion.completed_at)}
                 </p>
@@ -257,14 +242,13 @@ export function CompletionHistory({
                 size="icon-sm"
                 className={cn(
                   "absolute right-0 top-2 opacity-0 group-hover:opacity-100",
-                  "transition-opacity shrink-0 h-7 w-7"
+                  "transition-opacity shrink-0 h-7 w-7",
                 )}
                 onClick={() => handleDelete(completion.id)}
                 disabled={deleteCompletion.isPending}
                 aria-label="Remove completion"
               >
-                {deleteCompletion.isPending &&
-                deleteCompletion.variables?.id === completion.id ? (
+                {deleteCompletion.isPending && deleteCompletion.variables?.id === completion.id ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
                 ) : (
                   <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />

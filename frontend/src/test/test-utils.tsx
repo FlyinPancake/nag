@@ -27,16 +27,11 @@ interface WrapperProps {
 function AllProviders({ children }: WrapperProps) {
   const queryClient = createTestQueryClient();
 
-  return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 }
 
 // Custom render function that wraps components with providers
-function customRender(
-  ui: ReactElement,
-  options?: Omit<RenderOptions, "wrapper">
-) {
+function customRender(ui: ReactElement, options?: Omit<RenderOptions, "wrapper">) {
   return render(ui, { wrapper: AllProviders, ...options });
 }
 
@@ -54,8 +49,6 @@ export { createTestQueryClient };
 export function createWrapper() {
   const queryClient = createTestQueryClient();
   return function Wrapper({ children }: WrapperProps) {
-    return (
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    );
+    return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
   };
 }

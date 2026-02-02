@@ -1,19 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { choresApi, completionsApi } from "@/lib/api";
-import type {
-  CreateChoreRequest,
-  UpdateChoreRequest,
-  CompleteChoreRequest,
-} from "@/lib/api";
+import type { CreateChoreRequest, UpdateChoreRequest, CompleteChoreRequest } from "@/lib/api";
 
 // Query keys
 export const choreKeys = {
   all: ["chores"] as const,
   lists: () => [...choreKeys.all, "list"] as const,
-  list: (params?: { cursor?: string; limit?: number }) =>
-    [...choreKeys.lists(), params] as const,
-  due: (includeUpcoming?: boolean) =>
-    [...choreKeys.all, "due", { includeUpcoming }] as const,
+  list: (params?: { cursor?: string; limit?: number }) => [...choreKeys.lists(), params] as const,
+  due: (includeUpcoming?: boolean) => [...choreKeys.all, "due", { includeUpcoming }] as const,
   details: () => [...choreKeys.all, "detail"] as const,
   detail: (id: string) => [...choreKeys.details(), id] as const,
   completions: (choreId: string, params?: { cursor?: string; limit?: number }) =>
@@ -117,10 +111,7 @@ export function useCompleteChore() {
 }
 
 // List completions for a chore
-export function useCompletions(
-  choreId: string,
-  params?: { cursor?: string; limit?: number }
-) {
+export function useCompletions(choreId: string, params?: { cursor?: string; limit?: number }) {
   return useQuery({
     queryKey: choreKeys.completions(choreId, params),
     queryFn: () => choresApi.listCompletions(choreId, params),

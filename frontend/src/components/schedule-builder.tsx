@@ -1,13 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  Calendar,
-  Clock,
-  RefreshCw,
-  ChevronDown,
-  ChevronUp,
-  Zap,
-  Settings2,
-} from "lucide-react";
+import { Calendar, Clock, RefreshCw, ChevronDown, ChevronUp, Zap, Settings2 } from "lucide-react";
 
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -60,7 +52,12 @@ const PRESETS = [
   {
     id: "biweekly",
     label: "Biweekly",
-    schedule: { type: "interval" as const, intervalDays: 14, intervalTimeHour: 9, intervalTimeMinute: 0 },
+    schedule: {
+      type: "interval" as const,
+      intervalDays: 14,
+      intervalTimeHour: 9,
+      intervalTimeMinute: 0,
+    },
   },
   {
     id: "monthly",
@@ -89,7 +86,7 @@ export function ScheduleBuilder({ value, onChange }: ScheduleBuilderProps) {
   const [cronMinute, setCronMinute] = useState(0);
   const [dayOfMonth, setDayOfMonth] = useState(1);
   const [customCron, setCustomCron] = useState(
-    value.type === "cron" ? value.cronExpression : "0 9 * * 1"
+    value.type === "cron" ? value.cronExpression : "0 9 * * 1",
   );
 
   // Interval state
@@ -143,8 +140,7 @@ export function ScheduleBuilder({ value, onChange }: ScheduleBuilderProps) {
       frequency: cronFrequency,
       hour: cronHour,
       minute: cronMinute,
-      daysOfWeek:
-        cronFrequency === "weekly" ? selectedDays.map(Number) : undefined,
+      daysOfWeek: cronFrequency === "weekly" ? selectedDays.map(Number) : undefined,
       dayOfMonth: cronFrequency === "monthly" ? dayOfMonth : undefined,
     });
 
@@ -190,7 +186,7 @@ export function ScheduleBuilder({ value, onChange }: ScheduleBuilderProps) {
     if (!preset) return;
 
     setActivePreset(presetId);
-    
+
     if (preset.schedule.type === "cron") {
       setScheduleType("cron");
       const parsed = parseCron(preset.schedule.cronExpression);
@@ -257,7 +253,7 @@ export function ScheduleBuilder({ value, onChange }: ScheduleBuilderProps) {
       : formatIntervalHuman(
           intervalToDays(intervalValue, intervalUnit),
           showIntervalTime ? intervalHour : undefined,
-          showIntervalTime ? intervalMinute : undefined
+          showIntervalTime ? intervalMinute : undefined,
         );
 
   // Current schedule for preview
@@ -290,7 +286,7 @@ export function ScheduleBuilder({ value, onChange }: ScheduleBuilderProps) {
                 "border hover:border-primary/50",
                 activePreset === preset.id
                   ? "bg-[var(--color-preset-active)] border-primary/30 text-foreground"
-                  : "bg-[var(--color-preset-bg)] border-border/50 text-muted-foreground hover:text-foreground"
+                  : "bg-[var(--color-preset-bg)] border-border/50 text-muted-foreground hover:text-foreground",
               )}
             >
               {preset.label}
@@ -303,7 +299,7 @@ export function ScheduleBuilder({ value, onChange }: ScheduleBuilderProps) {
       <div
         className={cn(
           "flex items-center justify-between gap-3 rounded-lg border p-3",
-          "bg-[var(--color-schedule-card)]"
+          "bg-[var(--color-schedule-card)]",
         )}
       >
         <div className="flex items-center gap-2 min-w-0">
@@ -320,7 +316,7 @@ export function ScheduleBuilder({ value, onChange }: ScheduleBuilderProps) {
           className={cn(
             "flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium",
             "text-muted-foreground hover:text-foreground hover:bg-muted/50",
-            "transition-colors shrink-0"
+            "transition-colors shrink-0",
           )}
         >
           <Settings2 className="h-3.5 w-3.5" />
@@ -345,24 +341,20 @@ export function ScheduleBuilder({ value, onChange }: ScheduleBuilderProps) {
                 "flex items-center gap-2 rounded-lg p-3 border-2 transition-all text-left",
                 scheduleType === "interval"
                   ? "bg-[var(--color-schedule-type-active)] border-[var(--color-schedule-type-border)]"
-                  : "bg-[var(--color-schedule-type-bg)] border-border/50 hover:border-border"
+                  : "bg-[var(--color-schedule-type-bg)] border-border/50 hover:border-border",
               )}
             >
               <RefreshCw
                 className={cn(
                   "h-4 w-4 shrink-0",
-                  scheduleType === "interval"
-                    ? "text-primary"
-                    : "text-muted-foreground"
+                  scheduleType === "interval" ? "text-primary" : "text-muted-foreground",
                 )}
               />
               <div className="min-w-0">
                 <span
                   className={cn(
                     "text-sm font-semibold block",
-                    scheduleType === "interval"
-                      ? "text-primary"
-                      : "text-foreground"
+                    scheduleType === "interval" ? "text-primary" : "text-foreground",
                   )}
                 >
                   Interval
@@ -378,24 +370,20 @@ export function ScheduleBuilder({ value, onChange }: ScheduleBuilderProps) {
                 "flex items-center gap-2 rounded-lg p-3 border-2 transition-all text-left",
                 scheduleType === "cron"
                   ? "bg-[var(--color-schedule-type-active)] border-[var(--color-schedule-type-border)]"
-                  : "bg-[var(--color-schedule-type-bg)] border-border/50 hover:border-border"
+                  : "bg-[var(--color-schedule-type-bg)] border-border/50 hover:border-border",
               )}
             >
               <Calendar
                 className={cn(
                   "h-4 w-4 shrink-0",
-                  scheduleType === "cron"
-                    ? "text-primary"
-                    : "text-muted-foreground"
+                  scheduleType === "cron" ? "text-primary" : "text-muted-foreground",
                 )}
               />
               <div className="min-w-0">
                 <span
                   className={cn(
                     "text-sm font-semibold block",
-                    scheduleType === "cron"
-                      ? "text-primary"
-                      : "text-foreground"
+                    scheduleType === "cron" ? "text-primary" : "text-foreground",
                   )}
                 >
                   Fixed
@@ -447,7 +435,7 @@ export function ScheduleBuilder({ value, onChange }: ScheduleBuilderProps) {
                                 "border focus:outline-none focus:ring-2 focus:ring-primary/50",
                                 isSelected
                                   ? "bg-primary text-primary-foreground border-primary"
-                                  : "bg-background text-muted-foreground border-border hover:border-primary/50"
+                                  : "bg-background text-muted-foreground border-border hover:border-primary/50",
                               )}
                             >
                               {day.label}
@@ -598,9 +586,7 @@ export function ScheduleBuilder({ value, onChange }: ScheduleBuilderProps) {
                     min={1}
                     max={intervalUnit === "months" ? 12 : intervalUnit === "weeks" ? 52 : 365}
                     value={intervalValue}
-                    onChange={(e) =>
-                      setIntervalValue(Math.max(1, parseInt(e.target.value) || 1))
-                    }
+                    onChange={(e) => setIntervalValue(Math.max(1, parseInt(e.target.value) || 1))}
                     className="w-16 bg-background h-9"
                   />
                   <Select
@@ -611,9 +597,7 @@ export function ScheduleBuilder({ value, onChange }: ScheduleBuilderProps) {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="days">
-                        {intervalValue === 1 ? "day" : "days"}
-                      </SelectItem>
+                      <SelectItem value="days">{intervalValue === 1 ? "day" : "days"}</SelectItem>
                       <SelectItem value="weeks">
                         {intervalValue === 1 ? "week" : "weeks"}
                       </SelectItem>

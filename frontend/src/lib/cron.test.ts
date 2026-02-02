@@ -11,7 +11,7 @@ import {
   formatScheduleHuman,
   getNextOccurrences,
 } from "./cron";
-import type { Schedule, IntervalUnit } from "./cron";
+import type { Schedule } from "./cron";
 
 describe("parseCron", () => {
   it("should parse hourly schedule", () => {
@@ -131,18 +131,14 @@ describe("formatCronHuman", () => {
   });
 
   it("should format monthly schedule", () => {
-    expect(formatCronHuman("0 9 15 * *")).toBe(
-      "15th of every month at 9:00 AM"
-    );
+    expect(formatCronHuman("0 9 15 * *")).toBe("15th of every month at 9:00 AM");
   });
 
   it("should format monthly schedule with ordinal suffixes", () => {
     expect(formatCronHuman("0 9 1 * *")).toBe("1st of every month at 9:00 AM");
     expect(formatCronHuman("0 9 2 * *")).toBe("2nd of every month at 9:00 AM");
     expect(formatCronHuman("0 9 3 * *")).toBe("3rd of every month at 9:00 AM");
-    expect(formatCronHuman("0 9 21 * *")).toBe(
-      "21st of every month at 9:00 AM"
-    );
+    expect(formatCronHuman("0 9 21 * *")).toBe("21st of every month at 9:00 AM");
   });
 
   it("should return raw cron for custom schedules", () => {
@@ -295,8 +291,7 @@ describe("getNextOccurrences", () => {
 
     // Check that occurrences are 3 days apart
     for (let i = 1; i < occurrences.length; i++) {
-      const diffMs =
-        occurrences[i].date.getTime() - occurrences[i - 1].date.getTime();
+      const diffMs = occurrences[i].date.getTime() - occurrences[i - 1].date.getTime();
       const diffDays = diffMs / (24 * 60 * 60 * 1000);
       expect(diffDays).toBe(3);
     }

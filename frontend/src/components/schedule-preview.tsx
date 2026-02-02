@@ -35,12 +35,7 @@ export function SchedulePreview({ schedule, className }: SchedulePreviewProps) {
 
       <div className="flex items-start justify-center gap-2">
         {occurrences.map((occurrence, index) => (
-          <OccurrenceCard
-            key={index}
-            occurrence={occurrence}
-            isFirst={index === 0}
-            index={index}
-          />
+          <OccurrenceCard key={index} occurrence={occurrence} isFirst={index === 0} index={index} />
         ))}
       </div>
     </div>
@@ -55,7 +50,20 @@ interface OccurrenceCardProps {
 
 function OccurrenceCard({ occurrence, isFirst, index }: OccurrenceCardProps) {
   const date = occurrence.date;
-  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
 
   return (
     <div className="flex flex-col items-center gap-1">
@@ -65,7 +73,7 @@ function OccurrenceCard({ occurrence, isFirst, index }: OccurrenceCardProps) {
           "animate-stagger-fade transition-all",
           isFirst
             ? "bg-[var(--color-schedule-type-active)] border-primary/30 shadow-sm"
-            : "bg-[var(--color-schedule-card)] border-border/50"
+            : "bg-[var(--color-schedule-card)] border-border/50",
         )}
         style={{ animationDelay: `${index * 75}ms` }}
       >
@@ -77,34 +85,38 @@ function OccurrenceCard({ occurrence, isFirst, index }: OccurrenceCardProps) {
         )}
 
         {/* Month */}
-        <span className={cn(
-          "text-[10px] font-medium uppercase tracking-wide",
-          isFirst ? "text-primary" : "text-muted-foreground"
-        )}>
+        <span
+          className={cn(
+            "text-[10px] font-medium uppercase tracking-wide",
+            isFirst ? "text-primary" : "text-muted-foreground",
+          )}
+        >
           {monthNames[date.getMonth()]}
         </span>
 
         {/* Day number */}
-        <span className={cn(
-          "text-lg font-bold leading-tight",
-          isFirst ? "text-foreground" : "text-foreground/80"
-        )}>
+        <span
+          className={cn(
+            "text-lg font-bold leading-tight",
+            isFirst ? "text-foreground" : "text-foreground/80",
+          )}
+        >
           {date.getDate()}
         </span>
 
         {/* Day name */}
-        <span className={cn(
-          "text-[10px]",
-          isFirst ? "text-muted-foreground" : "text-muted-foreground/70"
-        )}>
+        <span
+          className={cn(
+            "text-[10px]",
+            isFirst ? "text-muted-foreground" : "text-muted-foreground/70",
+          )}
+        >
           {occurrence.label.includes(",") ? occurrence.label.split(",")[0] : occurrence.label}
         </span>
       </div>
 
       {/* Relative time label */}
-      <span className="text-[10px] text-muted-foreground/70">
-        {occurrence.relativeLabel}
-      </span>
+      <span className="text-[10px] text-muted-foreground/70">{occurrence.relativeLabel}</span>
     </div>
   );
 }

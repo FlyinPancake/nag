@@ -48,9 +48,7 @@ function HomePage() {
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <AlertTriangle className="h-12 w-12 text-destructive mb-4" />
         <h2 className="text-lg font-semibold mb-2">Something went wrong</h2>
-        <p className="text-sm text-muted-foreground">
-          Failed to load chores. Please try again.
-        </p>
+        <p className="text-sm text-muted-foreground">Failed to load chores. Please try again.</p>
       </div>
     );
   }
@@ -74,9 +72,7 @@ function HomePage() {
       )}
 
       {/* Empty state */}
-      {!isLoading && !hasChores && (
-        <EmptyState onAction={openCreate} />
-      )}
+      {!isLoading && !hasChores && <EmptyState onAction={openCreate} />}
 
       {/* Overdue section */}
       {!isLoading && overdueChores.length > 0 && (

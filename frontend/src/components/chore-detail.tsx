@@ -24,12 +24,7 @@ import { CollapsibleSection } from "@/components/collapsible-section";
 import { useChoreForm } from "@/hooks/use-chore-form";
 import { useDeleteChore } from "@/hooks/use-chores";
 import { formatCronHuman, formatIntervalHuman } from "@/lib/cron";
-import {
-  formatOverdue,
-  formatRelativeTime,
-  formatDateTime,
-  isToday,
-} from "@/lib/date";
+import { formatOverdue, formatRelativeTime, formatDateTime, isToday } from "@/lib/date";
 import { cn } from "@/lib/utils";
 import type { ChoreWithDue, Chore } from "@/lib/api";
 
@@ -40,12 +35,7 @@ interface ChoreDetailProps {
   onComplete: (id: string) => Promise<void>;
 }
 
-export function ChoreDetail({
-  chore,
-  open,
-  onOpenChange,
-  onComplete,
-}: ChoreDetailProps) {
+export function ChoreDetail({ chore, open, onOpenChange, onComplete }: ChoreDetailProps) {
   const { openEdit } = useChoreForm();
   const deleteChore = useDeleteChore();
 
@@ -115,7 +105,7 @@ export function ChoreDetail({
       ? formatIntervalHuman(
           chore.interval_days,
           chore.interval_time_hour,
-          chore.interval_time_minute
+          chore.interval_time_minute,
         )
       : formatCronHuman(chore.cron_schedule ?? "");
 
@@ -125,9 +115,7 @@ export function ChoreDetail({
         <div className="mx-auto w-full max-w-lg overflow-y-auto px-4 pb-8">
           {/* Header section */}
           <DrawerHeader className="px-0 pt-2 pb-4 text-center">
-            <DrawerTitle className="text-2xl font-bold tracking-tight">
-              {chore.name}
-            </DrawerTitle>
+            <DrawerTitle className="text-2xl font-bold tracking-tight">{chore.name}</DrawerTitle>
             <DrawerDescription className="flex items-center justify-center gap-1.5 mt-1">
               {chore.schedule_type === "interval" ? (
                 <Repeat className="h-3.5 w-3.5" />
@@ -153,7 +141,7 @@ export function ChoreDetail({
             className={cn(
               "flex items-center justify-center gap-2.5 px-4 py-3 rounded-2xl border mb-6",
               "transition-all",
-              status.className
+              status.className,
             )}
             style={status.style}
           >
@@ -195,9 +183,7 @@ export function ChoreDetail({
                 icon={<StickyNote className="h-4 w-4" />}
                 defaultOpen={true}
               >
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {chore.description}
-                </p>
+                <p className="text-sm text-muted-foreground leading-relaxed">{chore.description}</p>
               </CollapsibleSection>
             )}
 
@@ -213,11 +199,7 @@ export function ChoreDetail({
 
           {/* Secondary actions */}
           <div className="flex gap-3 mt-8 pt-4 border-t">
-            <Button
-              variant="outline"
-              className="flex-1 gap-2"
-              onClick={handleEdit}
-            >
+            <Button variant="outline" className="flex-1 gap-2" onClick={handleEdit}>
               <Pencil className="h-4 w-4" />
               Edit
             </Button>

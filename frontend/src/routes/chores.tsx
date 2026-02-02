@@ -31,7 +31,7 @@ type FilterTab = "all" | "overdue" | "today" | "upcoming";
 function ChoresPage() {
   const [activeTab, setActiveTab] = useState<FilterTab>("all");
   const [selectedChoreId, setSelectedChoreId] = useState<string | null>(null);
-  
+
   const { openCreate, openEdit } = useChoreForm();
   const { data: allChoresData, isLoading: isLoadingAll } = useChores();
   const { data: dueChores, isLoading: isLoadingDue } = useDueChores(true);
@@ -66,8 +66,8 @@ function ChoresPage() {
   };
 
   const filteredChores = getFilteredChores();
-  const selectedChore = selectedChoreId 
-    ? dueInfoMap.get(selectedChoreId) ?? allChores.find((c) => c.id === selectedChoreId) ?? null
+  const selectedChore = selectedChoreId
+    ? (dueInfoMap.get(selectedChoreId) ?? allChores.find((c) => c.id === selectedChoreId) ?? null)
     : null;
 
   // Count badges
@@ -164,10 +164,10 @@ function ChoresPage() {
                 activeTab === "all"
                   ? "No chores yet"
                   : activeTab === "overdue"
-                  ? "Nothing overdue!"
-                  : activeTab === "today"
-                  ? "Nothing due today"
-                  : "No upcoming chores"
+                    ? "Nothing overdue!"
+                    : activeTab === "today"
+                      ? "Nothing due today"
+                      : "No upcoming chores"
               }
               description={
                 activeTab === "all"
@@ -217,26 +217,21 @@ function ChoresPage() {
                               ? formatIntervalHuman(
                                   chore.interval_days,
                                   chore.interval_time_hour,
-                                  chore.interval_time_minute
+                                  chore.interval_time_minute,
                                 )
                               : formatCronHuman(chore.cron_schedule ?? "")}
                           </span>
                           {nextDue && (
                             <>
                               <span className="mx-1">·</span>
-                              <span className="shrink-0">
-                                {formatRelativeTime(nextDue)}
-                              </span>
+                              <span className="shrink-0">{formatRelativeTime(nextDue)}</span>
                             </>
                           )}
                         </div>
                       </div>
 
                       {/* Actions */}
-                      <div
-                        className="shrink-0"
-                        onClick={(e) => e.stopPropagation()}
-                      >
+                      <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon-sm">
