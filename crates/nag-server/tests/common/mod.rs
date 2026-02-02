@@ -1,4 +1,10 @@
 //! Test utilities and helpers for API integration tests.
+//!
+//! Note: Many test helpers and response structures may appear unused in individual
+//! test modules due to how Rust compiles each test independently. They are shared
+//! across multiple test files (api_chores, api_completions, api_health).
+
+#![allow(dead_code)]
 
 use axum::http::StatusCode;
 use axum_test::TestServer;
@@ -107,7 +113,6 @@ pub async fn create_cron_chore_with_description(
 }
 
 /// Helper to create an interval-based chore.
-#[allow(dead_code)]
 pub async fn create_interval_chore(
     server: &TestServer,
     name: &str,

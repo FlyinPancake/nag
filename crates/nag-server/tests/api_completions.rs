@@ -53,6 +53,7 @@ async fn test_delete_completion_not_found() {
     let problem: ProblemDetails = response.json();
     assert_eq!(problem.status, Some(404));
     assert!(problem.detail.unwrap().contains("not found"));
+    assert!(problem.title.is_some());
 }
 
 #[tokio::test]

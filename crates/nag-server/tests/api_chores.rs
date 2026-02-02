@@ -118,7 +118,14 @@ async fn test_create_chore_success() {
     assert_eq!(chore.description, Some("Use the Dyson".to_string()));
     assert_eq!(chore.schedule_type, "cron");
     assert_eq!(chore.cron_schedule, Some("0 9 * * 1".to_string()));
+    assert!(chore.interval_days.is_none());
+    assert!(chore.interval_time_hour.is_none());
+    assert!(chore.interval_time_minute.is_none());
     assert!(chore.last_completed_at.is_none());
+    // Verify timestamps are present and reasonable
+    assert!(chore.created_at <= chrono::Utc::now());
+    assert!(chore.updated_at <= chrono::Utc::now());
+    assert_eq!(chore.created_at, chore.updated_at); // Should be equal on creation
 }
 
 #[tokio::test]
@@ -157,6 +164,8 @@ async fn test_create_chore_invalid_cron_schedule() {
     let problem: ProblemDetails = response.json();
     assert_eq!(problem.status, Some(400));
     assert!(problem.detail.unwrap().contains("Invalid cron schedule"));
+    assert!(problem.title.is_some());
+    assert!(problem.problem_type.is_some());
 }
 
 #[tokio::test]
@@ -177,6 +186,7 @@ async fn test_create_chore_too_frequent_schedule() {
     let problem: ProblemDetails = response.json();
     assert_eq!(problem.status, Some(400));
     assert!(problem.detail.unwrap().contains("too frequent"));
+    assert!(problem.title.is_some());
 }
 
 #[tokio::test]
@@ -199,7 +209,12 @@ async fn test_create_interval_chore_success() {
     assert_eq!(chore.description, Some("Don't overwater!".to_string()));
     assert_eq!(chore.schedule_type, "interval");
     assert_eq!(chore.interval_days, Some(30));
+    assert!(chore.interval_time_hour.is_none());
+    assert!(chore.interval_time_minute.is_none());
     assert!(chore.cron_schedule.is_none());
+    // Verify timestamps
+    assert!(chore.created_at <= chrono::Utc::now());
+    assert!(chore.updated_at <= chrono::Utc::now());
 }
 
 #[tokio::test]
@@ -311,6 +326,7 @@ async fn test_get_chore_not_found() {
     let problem: ProblemDetails = response.json();
     assert_eq!(problem.status, Some(404));
     assert!(problem.detail.unwrap().contains("not found"));
+    assert!(problem.title.is_some());
 }
 
 #[tokio::test]
@@ -456,6 +472,7 @@ async fn test_update_chore_invalid_cron() {
 
     let problem: ProblemDetails = response.json();
     assert!(problem.detail.unwrap().contains("Invalid cron schedule"));
+    assert!(problem.title.is_some());
 }
 
 #[tokio::test]
@@ -487,6 +504,37 @@ async fn test_update_chore_change_to_interval() {
     assert_eq!(chore.interval_days, Some(14));
     assert_eq!(chore.interval_time_hour, Some(10));
     assert!(chore.cron_schedule.is_none());
+}
+
+#[tokio::test]
+async fn test_update_chore_updates_timestamp() {
+    let server = common::create_test_app().await;
+
+    let created = common::create_chore(&server, "Vacuum", "0 9 * * 1").await;
+    let original_updated_at = created.updated_at;
+
+    // Small delay to ensure timestamp will be different
+    tokio::time::sleep(tokio::time::Duration::from_millis(10)).await;
+
+    // Update the chore
+    let body = serde_json::json!({
+        "name": "Vacuum Thoroughly"
+    });
+
+    let response = server
+        .put(&format!("/api/chores/{}", created.id))
+        .json(&body)
+        .await;
+
+    response.assert_status_ok();
+
+    let updated: ChoreResponse = response.json();
+    assert_eq!(updated.name, "Vacuum Thoroughly");
+    
+    // updated_at should have changed
+    assert!(updated.updated_at > original_updated_at);
+    // created_at should remain the same
+    assert_eq!(updated.created_at, created.created_at);
 }
 
 // ============================================================================
@@ -582,7 +630,13 @@ async fn test_due_chores_with_overdue() {
     // Should have at least one overdue chore (since it was completed years ago
     // and should have been due many times since)
     assert!(!chores.is_empty());
-    assert!(chores.iter().any(|c| c.is_overdue));
+    
+    // Verify the overdue chore has proper fields
+    let overdue_chore = chores.iter().find(|c| c.is_overdue).unwrap();
+    assert!(overdue_chore.is_overdue);
+    assert!(overdue_chore.next_due.is_some());
+    assert_eq!(overdue_chore.schedule_type, "cron");
+    assert!(overdue_chore.last_completed_at.is_some());
 }
 
 #[tokio::test]
@@ -619,8 +673,15 @@ async fn test_due_chores_response_includes_due_info() {
     assert!(!chores.is_empty());
 
     let chore = &chores[0];
+    // Verify all fields are populated correctly
+    assert_eq!(chore.name, "Hourly task");
+    assert_eq!(chore.schedule_type, "cron");
+    assert_eq!(chore.cron_schedule, Some("0 * * * *".to_string()));
     // next_due should be set
     assert!(chore.next_due.is_some());
+    // Timestamps should be present
+    assert!(chore.created_at <= chrono::Utc::now());
+    assert!(chore.updated_at <= chrono::Utc::now());
 }
 
 // ============================================================================
@@ -645,6 +706,8 @@ async fn test_complete_chore_success() {
     let completion: common::CompletionResponse = response.json();
     assert_eq!(completion.chore_id, created.id);
     assert!(completion.notes.is_none());
+    assert!(completion.completed_at <= chrono::Utc::now());
+    assert!(completion.created_at <= chrono::Utc::now());
 }
 
 #[tokio::test]
@@ -665,7 +728,11 @@ async fn test_complete_chore_with_notes() {
     response.assert_status(StatusCode::CREATED);
 
     let completion: common::CompletionResponse = response.json();
+    assert_eq!(completion.chore_id, created.id);
     assert_eq!(completion.notes, Some("Used the new vacuum".to_string()));
+    // Verify timestamps
+    assert!(completion.completed_at <= chrono::Utc::now());
+    assert!(completion.created_at <= chrono::Utc::now());
 }
 
 #[tokio::test]
@@ -687,10 +754,13 @@ async fn test_complete_chore_with_custom_timestamp() {
     response.assert_status(StatusCode::CREATED);
 
     let completion: common::CompletionResponse = response.json();
+    assert_eq!(completion.chore_id, created.id);
     assert_eq!(
         completion.completed_at.to_rfc3339(),
         "2024-01-15T10:30:00+00:00"
     );
+    // Verify created_at is also present
+    assert!(completion.created_at <= chrono::Utc::now());
 }
 
 #[tokio::test]
@@ -706,6 +776,34 @@ async fn test_complete_chore_not_found() {
         .await;
 
     response.assert_status(StatusCode::NOT_FOUND);
+}
+
+// ============================================================================
+// List Completions (GET /api/chores/{id}/completions)
+// ============================================================================
+
+#[tokio::test]
+async fn test_interval_chore_due_after_completion() {
+    let server = common::create_test_app().await;
+
+    // Create an interval chore using the helper
+    let chore = common::create_interval_chore(&server, "Water plants", 7).await;
+    assert_eq!(chore.schedule_type, "interval");
+    assert_eq!(chore.interval_days, Some(7));
+
+    // Complete it now
+    common::complete_chore(&server, chore.id, None).await;
+
+    // Check due chores - should not be due immediately after completion
+    let response = server.get("/api/chores/due").await;
+    let due_chores: Vec<ChoreWithDueResponse> = response.json();
+    
+    // Should not be overdue since just completed
+    let our_chore = due_chores.iter().find(|c| c.id == chore.id);
+    if let Some(our_chore) = our_chore {
+        assert!(!our_chore.is_overdue);
+        assert!(our_chore.next_due.is_some());
+    }
 }
 
 // ============================================================================
