@@ -530,7 +530,7 @@ async fn test_update_chore_updates_timestamp() {
 
     let updated: ChoreResponse = response.json();
     assert_eq!(updated.name, "Vacuum Thoroughly");
-    
+
     // updated_at should have changed
     assert!(updated.updated_at > original_updated_at);
     // created_at should remain the same
@@ -630,7 +630,7 @@ async fn test_due_chores_with_overdue() {
     // Should have at least one overdue chore (since it was completed years ago
     // and should have been due many times since)
     assert!(!chores.is_empty());
-    
+
     // Verify the overdue chore has proper fields
     let overdue_chore = chores.iter().find(|c| c.is_overdue).unwrap();
     assert!(overdue_chore.is_overdue);
@@ -797,7 +797,7 @@ async fn test_interval_chore_due_after_completion() {
     // Check due chores - should not be due immediately after completion
     let response = server.get("/api/chores/due").await;
     let due_chores: Vec<ChoreWithDueResponse> = response.json();
-    
+
     // Should not be overdue since just completed
     let our_chore = due_chores.iter().find(|c| c.id == chore.id);
     if let Some(our_chore) = our_chore {
