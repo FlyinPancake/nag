@@ -14,9 +14,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChoreDetail } from "@/components/chore-detail";
 import { EmptyState } from "@/components/empty-state";
-import { useChores, useDueChores, useDeleteChore, useCompleteChore } from "@/hooks/use-chores";
+import { useChores, useDueChores, useDeleteChore } from "@/hooks/use-chores";
 import { useChoreForm } from "@/hooks/use-chore-form";
 import { formatCronHuman, formatIntervalHuman } from "@/lib/cron";
 import { formatRelativeTime, isToday } from "@/lib/date";
@@ -30,13 +29,11 @@ type FilterTab = "all" | "overdue" | "today" | "upcoming";
 
 function ChoresPage() {
   const [activeTab, setActiveTab] = useState<FilterTab>("all");
-  const [selectedChoreId, setSelectedChoreId] = useState<string | null>(null);
 
-  const { openCreate, openEdit } = useChoreForm();
+  const { openCreate, openEdit, openDetail } = useChoreForm();
   const { data: allChoresData, isLoading: isLoadingAll } = useChores();
   const { data: dueChores, isLoading: isLoadingDue } = useDueChores(true);
   const deleteChore = useDeleteChore();
-  const completeChore = useCompleteChore();
 
   const isLoading = isLoadingAll || isLoadingDue;
   const allChores = allChoresData?.items ?? [];
@@ -66,10 +63,6 @@ function ChoresPage() {
   };
 
   const filteredChores = getFilteredChores();
-  const selectedChore = selectedChoreId
-    ? (dueInfoMap.get(selectedChoreId) ?? allChores.find((c) => c.id === selectedChoreId) ?? null)
-    : null;
-
   // Count badges
   const overdueCount = allChores.filter((c) => dueInfoMap.get(c.id)?.is_overdue).length;
   const todayCount = allChores.filter((c) => {
@@ -77,22 +70,9 @@ function ChoresPage() {
     return due?.next_due && isToday(due.next_due);
   }).length;
 
-  const handleComplete = async (id: string) => {
-    const chore = allChores.find((c) => c.id === id);
-    try {
-      await completeChore.mutateAsync({ id });
-      toast.success(`${chore?.name ?? "Chore"} completed!`);
-    } catch {
-      toast.error("Failed to complete chore");
-    }
-  };
-
   const handleDelete = async (id: string) => {
     try {
       await deleteChore.mutateAsync(id);
-      if (selectedChoreId === id) {
-        setSelectedChoreId(null);
-      }
       toast.success("Chore deleted");
     } catch {
       toast.error("Failed to delete chore");
@@ -192,7 +172,7 @@ function ChoresPage() {
                   <Card
                     key={chore.id}
                     className="p-4 cursor-pointer hover:shadow-md transition-shadow"
-                    onClick={() => setSelectedChoreId(chore.id)}
+                    onClick={() => openDetail(dueInfoMap.get(chore.id) ?? chore)}
                   >
                     <div className="flex items-center gap-4">
                       <div className="flex-1 min-w-0">
@@ -264,13 +244,6 @@ function ChoresPage() {
         </TabsContent>
       </Tabs>
 
-      {/* Chore detail panel */}
-      <ChoreDetail
-        chore={selectedChore}
-        open={!!selectedChoreId}
-        onOpenChange={(open) => !open && setSelectedChoreId(null)}
-        onComplete={handleComplete}
-      />
     </div>
   );
 }

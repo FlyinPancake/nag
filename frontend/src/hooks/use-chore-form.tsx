@@ -1,39 +1,108 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
-import type { Chore } from "@/lib/api";
+import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import type { Chore, ChoreWithDue } from "@/lib/api";
+
+type ChoreFormMode = "panel" | "palette" | "detail" | null;
 
 interface ChoreFormContextValue {
-  isOpen: boolean;
+  /** Which form/view is currently open, or null if none */
+  mode: ChoreFormMode;
+  /** The chore being edited or viewed, null for create */
   chore: Chore | null;
-  openCreate: () => void;
-  openEdit: (chore: Chore) => void;
+  /** The chore with due info being viewed (detail mode) */
+  detailChore: ChoreWithDue | Chore | null;
+  /** Whether the side panel (form) is open */
+  isPanelOpen: boolean;
+  /** Whether the quick-add palette is open */
+  isPaletteOpen: boolean;
+  /** Whether the detail panel is open */
+  isDetailOpen: boolean;
+  /** Whether any right-side panel is active (form or detail) */
+  isSidePanelOpen: boolean;
+  /** Open the side panel in create mode */
+  openPanel: () => void;
+  /** Open the side panel in edit mode */
+  openPanelEdit: (chore: Chore) => void;
+  /** Open the quick-add command palette */
+  openPalette: () => void;
+  /** Open the detail panel for a chore */
+  openDetail: (chore: ChoreWithDue | Chore) => void;
+  /** Close whatever is currently open */
   close: () => void;
+
+  // Legacy aliases for backward compatibility
+  /** @deprecated Use isPanelOpen */
+  isOpen: boolean;
+  /** @deprecated Use openPanel */
+  openCreate: () => void;
+  /** @deprecated Use openPanelEdit */
+  openEdit: (chore: Chore) => void;
 }
 
 const ChoreFormContext = createContext<ChoreFormContextValue | null>(null);
 
 export function ChoreFormProvider({ children }: { children: ReactNode }) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [mode, setMode] = useState<ChoreFormMode>(null);
   const [chore, setChore] = useState<Chore | null>(null);
+  const [detailChore, setDetailChore] = useState<ChoreWithDue | Chore | null>(null);
 
-  const openCreate = () => {
+  const openPanel = useCallback(() => {
     setChore(null);
-    setIsOpen(true);
-  };
+    setDetailChore(null);
+    setMode("panel");
+  }, []);
 
-  const openEdit = (choreToEdit: Chore) => {
+  const openPanelEdit = useCallback((choreToEdit: Chore) => {
     setChore(choreToEdit);
-    setIsOpen(true);
-  };
+    setDetailChore(null);
+    setMode("panel");
+  }, []);
 
-  const close = () => {
-    setIsOpen(false);
-    // Delay clearing chore to allow animation
-    setTimeout(() => setChore(null), 200);
-  };
+  const openPalette = useCallback(() => {
+    setChore(null);
+    setDetailChore(null);
+    setMode("palette");
+  }, []);
+
+  const openDetail = useCallback((choreToView: ChoreWithDue | Chore) => {
+    setDetailChore(choreToView);
+    setChore(null);
+    setMode("detail");
+  }, []);
+
+  const close = useCallback(() => {
+    setMode(null);
+    // Delay clearing state to allow exit animation
+    setTimeout(() => {
+      setChore(null);
+      setDetailChore(null);
+    }, 300);
+  }, []);
+
+  const isPanelOpen = mode === "panel";
+  const isPaletteOpen = mode === "palette";
+  const isDetailOpen = mode === "detail";
+  const isSidePanelOpen = isPanelOpen || isDetailOpen;
 
   return (
     <ChoreFormContext.Provider
-      value={{ isOpen, chore, openCreate, openEdit, close }}
+      value={{
+        mode,
+        chore,
+        detailChore,
+        isPanelOpen,
+        isPaletteOpen,
+        isDetailOpen,
+        isSidePanelOpen,
+        openPanel,
+        openPanelEdit,
+        openPalette,
+        openDetail,
+        close,
+        // Legacy aliases
+        isOpen: isPanelOpen,
+        openCreate: openPanel,
+        openEdit: openPanelEdit,
+      }}
     >
       {children}
     </ChoreFormContext.Provider>

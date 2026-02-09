@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { Plus, ListTodo } from "lucide-react";
@@ -5,10 +6,12 @@ import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 import { DarkModeToggle } from "@/components/dark-mode-toggle";
-import { ChoreForm } from "@/components/chore-form";
+import { QuickAddPalette } from "@/components/quick-add-palette";
+import { ChoreFormPanel } from "@/components/chore-form-panel";
+import { ChoreDetailPanel } from "@/components/chore-detail-panel";
 import { ChoreFormProvider, useChoreForm } from "@/hooks/use-chore-form";
-import { useCreateChore, useUpdateChore } from "@/hooks/use-chores";
-import type { CreateChoreRequest, UpdateChoreRequest } from "@/lib/api";
+import { useCompleteChore } from "@/hooks/use-chores";
+import { cn } from "@/lib/utils";
 
 export const Route = createRootRoute({
   component: RootLayout,
@@ -23,31 +26,56 @@ function RootLayout() {
 }
 
 function RootLayoutInner() {
-  const { isOpen, chore, openCreate, close } = useChoreForm();
-  const createChore = useCreateChore();
-  const updateChore = useUpdateChore();
+  const {
+    isPanelOpen,
+    isPaletteOpen,
+    isDetailOpen,
+    isSidePanelOpen,
+    chore,
+    detailChore,
+    openPanel,
+    openPalette,
+    close,
+  } = useChoreForm();
 
-  const handleSubmit = async (data: CreateChoreRequest | UpdateChoreRequest) => {
-    if (chore) {
-      await updateChore.mutateAsync({ id: chore.id, data: data as UpdateChoreRequest });
-      toast.success("Chore updated!");
-    } else {
-      await createChore.mutateAsync(data as CreateChoreRequest);
-      toast.success("Chore created!");
+  const completeChore = useCompleteChore();
+
+  // Global Cmd/Ctrl+K keyboard shortcut for quick-add palette
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        if (isPaletteOpen) {
+          close();
+        } else {
+          openPalette();
+        }
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isPaletteOpen, openPalette, close]);
+
+  const handleComplete = async (id: string) => {
+    try {
+      await completeChore.mutateAsync({ id });
+      toast.success("Chore completed!");
+    } catch {
+      toast.error("Failed to complete chore");
     }
   };
 
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6">
-          <div className="flex justify-between h-14">
+      <nav className="sticky top-0 z-40 w-full border-b bg-background/92 backdrop-blur-md supports-[backdrop-filter]:bg-background/80">
+        <div className="max-w-[1040px] mx-auto px-4 sm:px-6">
+          <div className="flex justify-between h-[52px]">
             {/* Logo */}
             <div className="flex items-center">
               <Link
                 to="/"
-                className="text-xl font-bold text-foreground tracking-tight hover:opacity-80 transition-opacity"
+                className="font-serif text-xl font-bold text-foreground tracking-tight hover:opacity-80 transition-opacity"
               >
                 Nag
               </Link>
@@ -61,7 +89,13 @@ function RootLayoutInner() {
                 </Button>
               </Link>
               <DarkModeToggle />
-              <Button size="sm" className="gap-1.5" onClick={openCreate}>
+              {/* Cmd+K hint */}
+              <kbd className="hidden lg:inline-flex items-center gap-0.5 bg-secondary text-muted-foreground rounded px-1.5 py-0.5 text-[0.65rem] font-mono border cursor-pointer hover:bg-secondary/80 transition-colors"
+                onClick={openPalette}
+              >
+                <span className="text-[0.6rem]">&#8984;</span>K
+              </kbd>
+              <Button size="sm" className="gap-1.5 rounded-full" onClick={openPanel}>
                 <Plus className="h-4 w-4" />
                 <span className="hidden sm:inline">New Chore</span>
               </Button>
@@ -70,17 +104,38 @@ function RootLayoutInner() {
         </div>
       </nav>
 
-      {/* Main content */}
-      <main className="max-w-2xl mx-auto px-4 sm:px-6 py-6">
-        <Outlet />
-      </main>
+      {/* Main content area + side panel flex container */}
+      <div className="flex h-[calc(100vh-52px)] overflow-hidden">
+        {/* Main content — shrinks when any side panel opens */}
+        <main
+          className={cn(
+            "flex-1 min-w-0 overflow-y-auto transition-all duration-300 ease-in-out",
+            isSidePanelOpen && "hidden md:block",
+          )}
+        >
+          <div className="max-w-[1040px] mx-auto px-4 sm:px-6 py-6">
+            <Outlet />
+          </div>
+        </main>
 
-      {/* Global chore form */}
-      <ChoreForm
-        open={isOpen}
-        onOpenChange={(open) => !open && close()}
-        chore={chore}
-        onSubmit={handleSubmit}
+        {/* Side panel slot: form OR detail (only one at a time) */}
+        <ChoreFormPanel
+          open={isPanelOpen}
+          chore={chore}
+          onClose={close}
+        />
+        <ChoreDetailPanel
+          open={isDetailOpen}
+          chore={detailChore}
+          onClose={close}
+          onComplete={handleComplete}
+        />
+      </div>
+
+      {/* Quick-add command palette (floating overlay, independent of layout) */}
+      <QuickAddPalette
+        open={isPaletteOpen}
+        onClose={close}
       />
 
       {/* Toast notifications */}

@@ -7,6 +7,20 @@ description = "Build frontend assets"
 dir = "frontend"
 run = "bun run build"
 
+[tasks.dev-frontend]
+description = "Run frontend development server"
+dir = "frontend"
+run = "bun dev"
+
+[tasks.preview-frontend]
+description = "Run frontend preview server"
+dir = "frontend"
+run = "bun run preview"
+
+[tasks.preview-frontend-hr]
+description = "Run frontend preview server with hot reloading"
+run = "mise watch -r -w frontend preview-frontend"
+
 [tasks.run-backend]
 description = "Run development server"
 run = "cargo run -p nag-server --bin nag-server"
@@ -16,14 +30,17 @@ env = { RUST_LOG = "debug" }
 description = "Run backend development server with hot reloading"
 run = "mise watch -r -w crates/nag-server run-backend"
 
-[tasks.dev-frontend]
-description = "Run frontend development server"
-dir = "frontend"
-run = "bun dev"
-
 [tasks.dev]
 description = "Run both backend and frontend development servers"
 depends = ["dev-backend", "dev-frontend"]
+
+[tasks.preview]
+description = "Run both backend and frontend preview servers"
+depends = ["run-backend", "preview-frontend"]
+
+[tasks.preview-hr]
+description = "Run both backend and frontend preview servers with hot reloading"
+depends = ["dev-backend", "preview-frontend-hr"]
 
 [tasks.gen-oapi]
 description = "Generate TypeScript API client from OpenAPI spec"
