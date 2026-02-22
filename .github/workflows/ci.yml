@@ -56,7 +56,7 @@ jobs:
 
       - uses: actions/download-artifact@v5
         with:
-          name: frontend
+          artifact-ids: ${{ needs.frontend.outputs.frontend_artifact_id }}
           path: ./frontend/dist
 
       - name: Install Rust
