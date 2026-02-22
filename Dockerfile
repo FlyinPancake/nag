@@ -18,7 +18,7 @@ RUN bun run build
 # =============================================================================
 # Stage 2: Build backend
 # =============================================================================
-FROM rust:1.87-alpine AS backend-builder
+FROM rust:1.93-alpine AS backend-builder
 
 # Install build dependencies
 RUN apk add --no-cache musl-dev
