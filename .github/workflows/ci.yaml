@@ -60,12 +60,9 @@ jobs:
           path: ./frontend/dist
 
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           components: clippy, rustfmt
-
-      - name: Rust Cache
-        uses: Swatinem/rust-cache@v2
 
       - name: Check formatting
         run: cargo fmt --all -- --check
@@ -82,4 +79,4 @@ jobs:
       packages: write
     name: Container Build
     needs: backend
-    uses: ./.github/workflows/build-container.yml
+    uses: ./.github/workflows/build-container.yaml
