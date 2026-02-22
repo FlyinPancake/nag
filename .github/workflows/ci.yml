@@ -50,6 +50,7 @@ jobs:
   backend:
     name: Backend (Rust)
     runs-on: ubuntu-latest
+    needs: frontend
     steps:
       - uses: actions/checkout@v4
 
