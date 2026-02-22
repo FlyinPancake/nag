@@ -81,6 +81,5 @@ jobs:
       contents: read
       packages: write
     name: Container Build
-    if: github.event_name == 'pull_request'
-    needs: [frontend, backend]
+    needs: backend
     uses: ./.github/workflows/build-container.yml
