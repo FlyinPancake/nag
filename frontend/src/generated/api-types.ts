@@ -159,6 +159,8 @@ export interface components {
       name: string;
       /** @description Schedule type: "cron" or "interval" */
       schedule_type: components["schemas"]["ScheduleType"];
+      /** @description Tags assigned to this chore */
+      tags: components["schemas"]["TagResponse"][];
       /** Format: date-time */
       updated_at: string;
     };
@@ -194,6 +196,8 @@ export interface components {
       next_due?: string | null;
       /** @description Schedule type: "cron" or "interval" */
       schedule_type: components["schemas"]["ScheduleType"];
+      /** @description Tags assigned to this chore */
+      tags: components["schemas"]["TagResponse"][];
       /** Format: date-time */
       updated_at: string;
     };
@@ -225,6 +229,8 @@ export interface components {
       description?: string | null;
       /** @description Name of the chore */
       name: string;
+      /** @description Optional list of tag names to assign */
+      tags?: string[];
     };
     /** @description Query parameters for due chores endpoint */
     DueChoresQuery: {
@@ -292,6 +298,8 @@ export interface components {
         name: string;
         /** @description Schedule type: "cron" or "interval" */
         schedule_type: components["schemas"]["ScheduleType"];
+        /** @description Tags assigned to this chore */
+        tags: components["schemas"]["TagResponse"][];
         /** Format: date-time */
         updated_at: string;
       }[];
@@ -382,6 +390,32 @@ export interface components {
       /** @description New name (optional) */
       name?: string | null;
       schedule?: null | components["schemas"]["ScheduleInput"];
+      /** @description New set of tag names (optional, replaces all tags when present) */
+      tags?: string[] | null;
+    };
+    /** @description Response for a single tag */
+    TagResponse: {
+      /** Format: date-time */
+      created_at: string;
+      /** @description Color key from the palette (null means auto-assign based on name hash) */
+      color?: string | null;
+      /** Format: uuid */
+      id: string;
+      name: string;
+    };
+    /** @description Request body for creating a new tag */
+    CreateTagRequest: {
+      /** @description Name of the tag */
+      name: string;
+      /** @description Optional color key from the palette */
+      color?: string | null;
+    };
+    /** @description Request body for updating a tag */
+    UpdateTagRequest: {
+      /** @description New name (optional) */
+      name?: string | null;
+      /** @description New color key (optional, use null to clear) */
+      color?: string | null;
     };
   };
   responses: never;

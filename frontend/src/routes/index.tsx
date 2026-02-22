@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { AlertTriangle, Check } from "lucide-react";
@@ -9,7 +9,8 @@ import { formatCronHuman, formatIntervalHuman } from "@/lib/cron";
 import { formatOverdue, formatRelativeTime, isToday, isTomorrow } from "@/lib/date";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { ChoreWithDue } from "@/lib/api";
+import { tagBadgeStyle, tagDotStyle, resolveTagColorKey } from "@/lib/tag-colors";
+import type { ChoreWithDue, Tag } from "@/lib/api";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -148,6 +149,19 @@ function TriageCard({ chore, dueBadgeClass, onComplete, onClick }: ChoreCardProp
           {dueLabel(chore)}
         </span>
       </div>
+      {chore.tags && chore.tags.length > 0 && (
+        <div className="flex flex-wrap gap-1 mt-2">
+          {chore.tags.map((tag) => (
+            <span
+              key={tag.id}
+              className="inline-flex items-center rounded-full border px-1.5 py-0 text-[0.6rem] font-semibold"
+              style={tagBadgeStyle(tag.color, tag.name)}
+            >
+              {tag.name}
+            </span>
+          ))}
+        </div>
+      )}
       {chore.description && (
         <p className="mt-2 text-xs text-muted-foreground italic truncate">
           {chore.description}
@@ -181,6 +195,7 @@ function HomePage() {
   const { openCreate, openDetail } = useChoreForm();
   const { data: chores, isLoading, error } = useDueChores(true);
   const completeChore = useCompleteChore();
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
   const handleComplete = async (id: string) => {
     const chore = chores?.find((c) => c.id === id);
@@ -199,13 +214,32 @@ function HomePage() {
     }
   };
 
+  // Collect unique tags from all loaded chores
+  const allTags = useMemo(() => {
+    const tagMap = new Map<string, Tag>();
+    for (const c of chores ?? []) {
+      for (const t of c.tags ?? []) {
+        tagMap.set(t.id, t);
+      }
+    }
+    return Array.from(tagMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+  }, [chores]);
+
+  // Filter chores by selected tag, then group into columns
+  const filteredChores = useMemo(() => {
+    if (!selectedTag) return chores ?? [];
+    return (chores ?? []).filter((c) =>
+      c.tags?.some((t) => t.name === selectedTag),
+    );
+  }, [chores, selectedTag]);
+
   // Group chores into columns
   const grouped: Record<ChoreStatus, ChoreWithDue[]> = {
     overdue: [],
     today: [],
     upcoming: [],
   };
-  for (const c of chores ?? []) {
+  for (const c of filteredChores) {
     grouped[choreStatus(c)].push(c);
   }
 
@@ -244,7 +278,47 @@ function HomePage() {
   }
 
   return (
-    <div className="flex flex-col md:flex-row md:items-start gap-7 md:gap-4">
+    <div className="space-y-4">
+      {/* Tag filter bar */}
+      {allTags.length > 0 && (
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <button
+            type="button"
+            onClick={() => setSelectedTag(null)}
+            className={cn(
+              "rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors border",
+              selectedTag === null
+                ? "bg-foreground text-background border-foreground"
+                : "bg-transparent text-muted-foreground border-border hover:bg-secondary",
+            )}
+          >
+            All
+          </button>
+          {allTags.map((tag) => (
+            <button
+              key={tag.id}
+              type="button"
+              onClick={() =>
+                setSelectedTag(selectedTag === tag.name ? null : tag.name)
+              }
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors border",
+                selectedTag === tag.name
+                  ? "bg-foreground text-background border-foreground"
+                  : "bg-transparent text-muted-foreground border-border hover:bg-secondary",
+              )}
+            >
+              <span
+                className="w-2 h-2 rounded-full shrink-0"
+                style={tagDotStyle(resolveTagColorKey(tag.color, tag.name))}
+              />
+              {tag.name}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div className="flex flex-col md:flex-row md:items-start gap-7 md:gap-4">
       {COLUMNS.map((col) => {
         const items = grouped[col.key];
         return (
@@ -287,6 +361,7 @@ function HomePage() {
           </div>
         );
       })}
+      </div>
     </div>
   );
 }

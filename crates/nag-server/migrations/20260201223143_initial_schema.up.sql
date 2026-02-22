@@ -38,6 +38,7 @@ CREATE INDEX idx_completions_completed_at ON completions(completed_at);
 CREATE TABLE tags (
     id BLOB PRIMARY KEY NOT NULL CHECK(length(id) = 16),
     name TEXT NOT NULL UNIQUE,
+    color TEXT,
     created_at TEXT NOT NULL
 );
 
@@ -49,3 +50,16 @@ CREATE TABLE chore_tags (
 );
 
 CREATE INDEX idx_chore_tags_tag_id ON chore_tags(tag_id);
+
+-- Users: OIDC-authenticated users
+CREATE TABLE users (
+    id BLOB PRIMARY KEY NOT NULL CHECK(length(id) = 16),
+    oidc_issuer TEXT NOT NULL,
+    oidc_subject TEXT NOT NULL,
+    email TEXT,
+    name TEXT,
+    picture TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    UNIQUE(oidc_issuer, oidc_subject)
+);

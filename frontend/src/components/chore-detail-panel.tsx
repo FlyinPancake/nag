@@ -17,6 +17,7 @@ import {
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
+import { tagBadgeStyle } from "@/lib/tag-colors";
 import { CompletionHistory } from "@/components/completion-history";
 import { useChoreForm } from "@/hooks/use-chore-form";
 import { useDeleteChore } from "@/hooks/use-chores";
@@ -200,6 +201,21 @@ export function ChoreDetailPanel({ open, chore, onClose, onComplete }: ChoreDeta
           )}
           <span>{scheduleText}</span>
         </div>
+
+        {/* Tags */}
+        {chore.tags && chore.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {chore.tags.map((tag) => (
+              <span
+                key={tag.id}
+                className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold"
+                style={tagBadgeStyle(tag.color, tag.name)}
+              >
+                {tag.name}
+              </span>
+            ))}
+          </div>
+        )}
 
         {/* Status badge */}
         <div

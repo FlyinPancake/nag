@@ -8,7 +8,8 @@ use uuid::Uuid;
 
 use crate::db::models::ScheduleType;
 use crate::db::{
-    ChoreRepository, CompletionRepository, chores::CreateChoreParams, chores::UpdateScheduleParams,
+    ChoreRepository, CompletionRepository, TagRepository, chores::CreateChoreParams,
+    chores::UpdateScheduleParams,
 };
 use crate::http::models::{
     AppError, AppResult, ChoreResponse, ChoreWithDueResponse, CompleteChoreRequest,
@@ -25,7 +26,8 @@ const TAG: &str = "Chores";
     path = "/chores",
     params(
         ("cursor" = Option<Uuid>, Query, description = "Cursor for pagination"),
-        ("limit" = Option<i64>, Query, description = "Maximum items to return (default 20)")
+        ("limit" = Option<i64>, Query, description = "Maximum items to return (default 20)"),
+        ("tag" = Option<String>, Query, description = "Filter by tag name")
     ),
     tag = TAG,
     responses(
@@ -40,8 +42,30 @@ pub async fn list_chores(
         .await
         .map_err(|e| AppError::Internal(e.into()))?;
 
-    let next_cursor = chores.last().map(|c| c.id);
-    let items: Vec<ChoreResponse> = chores.into_iter().map(ChoreResponse::from).collect();
+    // Batch-load tags for all chores
+    let chore_ids: Vec<Uuid> = chores.iter().map(|c| c.id).collect();
+    let mut tags_map = TagRepository::get_tags_for_chores(&pool, &chore_ids)
+        .await
+        .map_err(|e| AppError::Internal(e.into()))?;
+
+    // Build response items, optionally filtering by tag
+    let mut items: Vec<ChoreResponse> = Vec::new();
+    for chore in chores {
+        let chore_tags = tags_map.remove(&chore.id).unwrap_or_default();
+
+        // If tag filter is specified, skip chores that don't have the tag
+        if let Some(ref filter_tag) = query.tag
+            && !chore_tags
+                .iter()
+                .any(|t| t.name.eq_ignore_ascii_case(filter_tag))
+        {
+            continue;
+        }
+
+        items.push(ChoreResponse::from_chore_with_completion(chore, chore_tags));
+    }
+
+    let next_cursor = items.last().map(|c| c.id);
 
     Ok(Json(PaginatedResponse::new(items, next_cursor)))
 }
@@ -51,7 +75,8 @@ pub async fn list_chores(
     get,
     path = "/chores/due",
     params(
-        ("include_upcoming" = Option<bool>, Query, description = "Include upcoming chores")
+        ("include_upcoming" = Option<bool>, Query, description = "Include upcoming chores"),
+        ("tag" = Option<String>, Query, description = "Filter by tag name")
     ),
     tag = TAG,
     responses(
@@ -66,8 +91,27 @@ pub async fn get_due_chores(
         .await
         .map_err(AppError::Internal)?;
 
-    let items: Vec<ChoreWithDueResponse> =
-        chores.into_iter().map(ChoreWithDueResponse::from).collect();
+    // Batch-load tags
+    let chore_ids: Vec<Uuid> = chores.iter().map(|c| c.chore.id).collect();
+    let mut tags_map = TagRepository::get_tags_for_chores(&pool, &chore_ids)
+        .await
+        .map_err(|e| AppError::Internal(e.into()))?;
+
+    let mut items: Vec<ChoreWithDueResponse> = Vec::new();
+    for info in chores {
+        let chore_tags = tags_map.remove(&info.chore.id).unwrap_or_default();
+
+        // If tag filter is specified, skip chores that don't have the tag
+        if let Some(ref filter_tag) = query.tag
+            && !chore_tags
+                .iter()
+                .any(|t| t.name.eq_ignore_ascii_case(filter_tag))
+        {
+            continue;
+        }
+
+        items.push(ChoreWithDueResponse::from_due_info(info, chore_tags));
+    }
 
     Ok(Json(items))
 }
@@ -137,7 +181,19 @@ pub async fn create_chore(
         .await
         .map_err(|e| AppError::Internal(e.into()))?;
 
-    Ok((StatusCode::CREATED, Json(ChoreResponse::from(chore))))
+    // Set tags if provided
+    let tags = if !body.tags.is_empty() {
+        TagRepository::set_chore_tags(&pool, chore.id, &body.tags)
+            .await
+            .map_err(|e| AppError::Internal(e.into()))?
+    } else {
+        Vec::new()
+    };
+
+    Ok((
+        StatusCode::CREATED,
+        Json(ChoreResponse::from_chore(chore, tags)),
+    ))
 }
 
 /// Get a single chore by ID
@@ -162,7 +218,11 @@ pub async fn get_chore(
         .map_err(|e| AppError::Internal(e.into()))?
         .ok_or_else(|| AppError::NotFound(format!("Chore with id {} not found", id)))?;
 
-    Ok(Json(ChoreResponse::from(chore)))
+    let tags = TagRepository::get_tags_for_chore(&pool, id)
+        .await
+        .map_err(|e| AppError::Internal(e.into()))?;
+
+    Ok(Json(ChoreResponse::from_chore_with_completion(chore, tags)))
 }
 
 /// Update a chore
@@ -239,7 +299,18 @@ pub async fn update_chore(
     .map_err(|e| AppError::Internal(e.into()))?
     .ok_or_else(|| AppError::NotFound(format!("Chore with id {} not found", id)))?;
 
-    Ok(Json(ChoreResponse::from(chore)))
+    // Update tags if provided
+    let tags = if let Some(ref tag_names) = body.tags {
+        TagRepository::set_chore_tags(&pool, chore.id, tag_names)
+            .await
+            .map_err(|e| AppError::Internal(e.into()))?
+    } else {
+        TagRepository::get_tags_for_chore(&pool, chore.id)
+            .await
+            .map_err(|e| AppError::Internal(e.into()))?
+    };
+
+    Ok(Json(ChoreResponse::from_chore(chore, tags)))
 }
 
 /// Delete a chore

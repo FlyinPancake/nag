@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { ArrowLeft, AlertTriangle, Calendar, Pencil, Trash2, MoreVertical } from "lucide-react";
@@ -19,7 +19,9 @@ import { useChores, useDueChores, useDeleteChore } from "@/hooks/use-chores";
 import { useChoreForm } from "@/hooks/use-chore-form";
 import { formatCronHuman, formatIntervalHuman } from "@/lib/cron";
 import { formatRelativeTime, isToday } from "@/lib/date";
-import type { Chore, ChoreWithDue } from "@/lib/api";
+import { cn } from "@/lib/utils";
+import { tagBadgeStyle, tagDotStyle, resolveTagColorKey } from "@/lib/tag-colors";
+import type { Chore, ChoreWithDue, Tag } from "@/lib/api";
 
 export const Route = createFileRoute("/chores")({
   component: ChoresPage,
@@ -29,6 +31,7 @@ type FilterTab = "all" | "overdue" | "today" | "upcoming";
 
 function ChoresPage() {
   const [activeTab, setActiveTab] = useState<FilterTab>("all");
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
   const { openCreate, openEdit, openDetail } = useChoreForm();
   const { data: allChoresData, isLoading: isLoadingAll } = useChores();
@@ -36,36 +39,54 @@ function ChoresPage() {
   const deleteChore = useDeleteChore();
 
   const isLoading = isLoadingAll || isLoadingDue;
-  const allChores = allChoresData?.items ?? [];
+  const allChoresItems = allChoresData?.items;
+
+  // Collect unique tags from all chores
+  const allTags = useMemo(() => {
+    const tagMap = new Map<string, Tag>();
+    for (const c of allChoresItems ?? []) {
+      for (const t of c.tags ?? []) {
+        tagMap.set(t.id, t);
+      }
+    }
+    return Array.from(tagMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+  }, [allChoresItems]);
+
+  // Apply tag filter first
+  const tagFilteredChores = useMemo(() => {
+    const items = allChoresItems ?? [];
+    if (!selectedTag) return items;
+    return items.filter((c) => c.tags?.some((t) => t.name === selectedTag));
+  }, [allChoresItems, selectedTag]);
 
   // Create a map of due info by chore id
   const dueInfoMap = new Map<string, ChoreWithDue>();
   dueChores?.forEach((c) => dueInfoMap.set(c.id, c));
 
-  // Filter chores based on active tab
+  // Filter chores based on active tab (applied after tag filter)
   const getFilteredChores = (): Chore[] => {
     switch (activeTab) {
       case "overdue":
-        return allChores.filter((c) => dueInfoMap.get(c.id)?.is_overdue);
+        return tagFilteredChores.filter((c) => dueInfoMap.get(c.id)?.is_overdue);
       case "today":
-        return allChores.filter((c) => {
+        return tagFilteredChores.filter((c) => {
           const due = dueInfoMap.get(c.id);
           return due?.next_due && isToday(due.next_due);
         });
       case "upcoming":
-        return allChores.filter((c) => {
+        return tagFilteredChores.filter((c) => {
           const due = dueInfoMap.get(c.id);
           return due && !due.is_overdue && due.next_due && !isToday(due.next_due);
         });
       default:
-        return allChores;
+        return tagFilteredChores;
     }
   };
 
   const filteredChores = getFilteredChores();
-  // Count badges
-  const overdueCount = allChores.filter((c) => dueInfoMap.get(c.id)?.is_overdue).length;
-  const todayCount = allChores.filter((c) => {
+  // Count badges (reflect tag filter)
+  const overdueCount = tagFilteredChores.filter((c) => dueInfoMap.get(c.id)?.is_overdue).length;
+  const todayCount = tagFilteredChores.filter((c) => {
     const due = dueInfoMap.get(c.id);
     return due?.next_due && isToday(due.next_due);
   }).length;
@@ -91,13 +112,52 @@ function ChoresPage() {
         <h1 className="text-2xl font-bold">All Chores</h1>
       </div>
 
+      {/* Tag filter */}
+      {allTags.length > 0 && (
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <button
+            type="button"
+            onClick={() => setSelectedTag(null)}
+            className={cn(
+              "rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors border",
+              selectedTag === null
+                ? "bg-foreground text-background border-foreground"
+                : "bg-transparent text-muted-foreground border-border hover:bg-secondary",
+            )}
+          >
+            All tags
+          </button>
+          {allTags.map((tag) => (
+            <button
+              key={tag.id}
+              type="button"
+              onClick={() =>
+                setSelectedTag(selectedTag === tag.name ? null : tag.name)
+              }
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors border",
+                selectedTag === tag.name
+                  ? "bg-foreground text-background border-foreground"
+                  : "bg-transparent text-muted-foreground border-border hover:bg-secondary",
+              )}
+            >
+              <span
+                className="w-2 h-2 rounded-full shrink-0"
+                style={tagDotStyle(resolveTagColorKey(tag.color, tag.name))}
+              />
+              {tag.name}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Filter tabs */}
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as FilterTab)}>
         <TabsList className="w-full grid grid-cols-4">
           <TabsTrigger value="all">
             All
             <Badge variant="secondary" className="ml-1.5 h-5 px-1.5 text-xs">
-              {allChores.length}
+              {tagFilteredChores.length}
             </Badge>
           </TabsTrigger>
           <TabsTrigger value="overdue">
@@ -208,6 +268,19 @@ function ChoresPage() {
                             </>
                           )}
                         </div>
+                        {chore.tags && chore.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {chore.tags.map((tag) => (
+                              <span
+                                key={tag.id}
+                                className="inline-flex items-center rounded-full border px-1.5 py-0 text-[0.6rem] font-semibold"
+                                style={tagBadgeStyle(tag.color, tag.name)}
+                              >
+                                {tag.name}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
 
                       {/* Actions */}

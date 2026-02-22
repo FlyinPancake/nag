@@ -14,15 +14,25 @@ use serde::Deserialize;
 /// Create a test server with an in-memory SQLite database.
 ///
 /// Each call creates a fresh database with migrations applied,
-/// providing test isolation.
+/// providing test isolation. Uses `build_test_app` which skips
+/// OIDC authentication, making all API routes accessible without auth.
 pub async fn create_test_app() -> TestServer {
     let pool = db::create_pool("sqlite::memory:")
         .await
         .expect("Failed to create test database pool");
 
-    let app = http::build_app(pool);
+    let app = http::build_test_app(pool);
 
     TestServer::new(app.into_make_service()).expect("Failed to create test server")
+}
+
+/// Response structure for tags (matches TagResponse from the API).
+#[derive(Debug, Deserialize)]
+pub struct TagResponse {
+    pub id: uuid::Uuid,
+    pub name: String,
+    pub color: Option<String>,
+    pub created_at: chrono::DateTime<chrono::Utc>,
 }
 
 /// Response structure for chores (matches ChoreResponse from the API).
@@ -37,6 +47,7 @@ pub struct ChoreResponse {
     pub interval_time_hour: Option<i32>,
     pub interval_time_minute: Option<i32>,
     pub last_completed_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub tags: Vec<TagResponse>,
     pub created_at: chrono::DateTime<chrono::Utc>,
     pub updated_at: chrono::DateTime<chrono::Utc>,
 }
@@ -55,6 +66,7 @@ pub struct ChoreWithDueResponse {
     pub last_completed_at: Option<chrono::DateTime<chrono::Utc>>,
     pub next_due: Option<chrono::DateTime<chrono::Utc>>,
     pub is_overdue: bool,
+    pub tags: Vec<TagResponse>,
     pub created_at: chrono::DateTime<chrono::Utc>,
     pub updated_at: chrono::DateTime<chrono::Utc>,
 }
@@ -159,6 +171,45 @@ pub async fn complete_chore(
         .post(&format!("/api/chores/{}/complete", chore_id))
         .json(&body)
         .await;
+    response.assert_status(StatusCode::CREATED);
+    response.json()
+}
+
+/// Helper to create a tag via the API.
+pub async fn create_tag(server: &TestServer, name: &str) -> TagResponse {
+    let body = serde_json::json!({ "name": name });
+    let response = server.post("/api/tags").json(&body).await;
+    response.assert_status(StatusCode::CREATED);
+    response.json()
+}
+
+/// Helper to create a chore with tags via the API.
+pub async fn create_chore_with_tags(
+    server: &TestServer,
+    name: &str,
+    cron_schedule: &str,
+    tags: &[&str],
+) -> ChoreResponse {
+    let body = serde_json::json!({
+        "name": name,
+        "schedule_type": "cron",
+        "cron_schedule": cron_schedule,
+        "tags": tags
+    });
+
+    let response = server.post("/api/chores").json(&body).await;
+    response.assert_status(StatusCode::CREATED);
+    response.json()
+}
+
+/// Helper to create a tag with a specific color via the API.
+pub async fn create_tag_with_color(
+    server: &TestServer,
+    name: &str,
+    color: Option<&str>,
+) -> TagResponse {
+    let body = serde_json::json!({ "name": name, "color": color });
+    let response = server.post("/api/tags").json(&body).await;
     response.assert_status(StatusCode::CREATED);
     response.json()
 }

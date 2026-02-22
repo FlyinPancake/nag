@@ -54,3 +54,78 @@ pub struct ChoreWithLastCompletion {
     pub updated_at: DateTime<Utc>,
     pub last_completed_at: Option<DateTime<Utc>>,
 }
+
+/// A tag for categorizing chores
+#[derive(Debug, Clone, sqlx::FromRow)]
+pub struct Tag {
+    pub id: Uuid,
+    pub name: String,
+    pub color: Option<String>,
+    pub created_at: DateTime<Utc>,
+}
+
+/// An authenticated user (from OIDC)
+#[derive(Debug, Clone, sqlx::FromRow, Serialize)]
+pub struct User {
+    pub id: Uuid,
+    pub oidc_issuer: String,
+    pub oidc_subject: String,
+    pub email: Option<String>,
+    pub name: Option<String>,
+    pub picture: Option<String>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+/// Notification event type
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, sqlx::Type)]
+#[serde(rename_all = "snake_case")]
+#[sqlx(type_name = "TEXT", rename_all = "snake_case")]
+pub enum NotificationEventType {
+    Due,
+}
+
+/// Notification delivery channel
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, sqlx::Type)]
+#[serde(rename_all = "snake_case")]
+#[sqlx(type_name = "TEXT", rename_all = "snake_case")]
+pub enum NotificationChannel {
+    Telegram,
+}
+
+/// Notification delivery status
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, sqlx::Type)]
+#[serde(rename_all = "snake_case")]
+#[sqlx(type_name = "TEXT", rename_all = "snake_case")]
+pub enum NotificationDeliveryStatus {
+    Pending,
+    Failed,
+    Delivered,
+}
+
+/// A unique notification event (deduplicated by chore + event + due time)
+#[derive(Debug, Clone, sqlx::FromRow)]
+pub struct NotificationEvent {
+    pub id: Uuid,
+    pub chore_id: Uuid,
+    pub event_type: NotificationEventType,
+    pub due_at: DateTime<Utc>,
+    pub title: String,
+    pub body: String,
+    pub created_at: DateTime<Utc>,
+}
+
+/// Delivery state for a notification event on a specific channel
+#[derive(Debug, Clone, sqlx::FromRow)]
+pub struct NotificationDelivery {
+    pub id: Uuid,
+    pub event_id: Uuid,
+    pub channel: NotificationChannel,
+    pub status: NotificationDeliveryStatus,
+    pub attempt_count: i32,
+    pub last_error: Option<String>,
+    pub last_attempted_at: Option<DateTime<Utc>>,
+    pub delivered_at: Option<DateTime<Utc>>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}

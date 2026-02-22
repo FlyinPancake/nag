@@ -1,0 +1,11 @@
+{
+  "name": "nag-oidc-dev",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "dependencies": {
+    "oidc-provider": "^9.0.0"
+  }
+}

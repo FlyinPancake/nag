@@ -31,6 +31,14 @@ uuid.workspace = true
 chrono.workspace = true
 croner.workspace = true
 
+tower-sessions.workspace = true
+tower-sessions-sqlx-store.workspace = true
+time.workspace = true
+
+openidconnect.workspace = true
+reqwest.workspace = true
+teloxide.workspace = true
+
 rust-embed.workspace = true
 mime_guess.workspace = true
 

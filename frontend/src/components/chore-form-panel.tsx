@@ -11,6 +11,8 @@ import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
 import { useCreateChore, useUpdateChore } from "@/hooks/use-chores";
+import { TagInput } from "@/components/tag-input";
+import { tagsApi } from "@/lib/api";
 import type { Chore, CreateChoreRequest, UpdateChoreRequest } from "@/lib/api";
 
 // ---------------------------------------------------------------------------
@@ -266,6 +268,8 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
   const [timeHour, setTimeHour] = useState(9);
   const [timeMinute, setTimeMinute] = useState(0);
   const [notes, setNotes] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
+  const [newTagColors, setNewTagColors] = useState<Map<string, string>>(new Map());
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const createChore = useCreateChore();
@@ -277,6 +281,7 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
     if (chore) {
       setName(chore.name);
       setNotes(chore.description ?? "");
+      setTags(chore.tags?.map((t) => t.name) ?? []);
       if (chore.schedule_type === "interval" && chore.interval_days) {
         setSchedulePreset(presetFromDays(chore.interval_days));
         if (presetFromDays(chore.interval_days) === "custom") {
@@ -296,6 +301,8 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
       setTimeHour(9);
       setTimeMinute(0);
       setNotes("");
+      setTags([]);
+      setNewTagColors(new Map());
       setShowAdvanced(false);
     }
   }, [chore]);
@@ -336,6 +343,19 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
   const handleSubmit = async () => {
     if (!canSubmit) return;
 
+    // Pre-create any new tags that have color preferences
+    if (newTagColors.size > 0) {
+      for (const [tagName, color] of newTagColors) {
+        if (tags.some((t) => t.toLowerCase() === tagName.toLowerCase())) {
+          try {
+            await tagsApi.create({ name: tagName, color });
+          } catch {
+            // Tag might already exist (race condition), that's fine
+          }
+        }
+      }
+    }
+
     if (isEditing && chore) {
       // Update existing chore
       const data: UpdateChoreRequest = {
@@ -347,6 +367,7 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
           interval_time_hour: timeHour,
           interval_time_minute: timeMinute,
         },
+        tags,
       };
       try {
         await updateChore.mutateAsync({ id: chore.id, data });
@@ -364,6 +385,7 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
         interval_days: resolvedIntervalDays,
         interval_time_hour: timeHour,
         interval_time_minute: timeMinute,
+        tags,
       };
       try {
         await createChore.mutateAsync(data);
@@ -413,7 +435,7 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
             className={cn(
               "w-full rounded-lg border border-input bg-background px-3 py-2.5",
               "text-sm text-foreground placeholder:text-muted-foreground/60",
-              "focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent",
+              "focus:outline-none focus-visible:!outline-none focus-visible:!outline-offset-0 focus:ring-2 focus:ring-ring focus:border-transparent",
               "transition-shadow duration-150",
             )}
             onKeyDown={(e) => {
@@ -421,6 +443,28 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
                 e.preventDefault();
                 handleSubmit();
               }
+            }}
+          />
+        </div>
+
+        {/* Tags */}
+        <div className="space-y-1.5">
+          <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+            Tags
+            <span className="font-normal normal-case tracking-normal text-muted-foreground/60 ml-1">
+              (optional)
+            </span>
+          </label>
+          <TagInput
+            value={tags}
+            onChange={setTags}
+            newTagColors={newTagColors}
+            onNewTagColor={(name, color) => {
+              setNewTagColors((prev) => {
+                const next = new Map(prev);
+                next.set(name.toLowerCase(), color);
+                return next;
+              });
             }}
           />
         </div>
@@ -478,7 +522,7 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
                 className={cn(
                   "w-16 rounded-lg border border-input bg-background px-2.5 py-1.5",
                   "text-sm text-foreground text-center",
-                  "focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent",
+                  "focus:outline-none focus-visible:!outline-none focus-visible:!outline-offset-0 focus:ring-2 focus:ring-ring focus:border-transparent",
                 )}
               />
               <div className="relative">
@@ -490,7 +534,7 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
                   className={cn(
                     "appearance-none rounded-lg border border-input bg-background pl-3 pr-7 py-1.5",
                     "text-sm text-foreground",
-                    "focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent",
+                    "focus:outline-none focus-visible:!outline-none focus-visible:!outline-offset-0 focus:ring-2 focus:ring-ring focus:border-transparent",
                     "cursor-pointer",
                   )}
                 >
@@ -536,7 +580,7 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
                   className={cn(
                     "w-14 rounded-lg border border-input bg-background px-2 py-1.5",
                     "text-sm text-foreground text-center",
-                    "focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent",
+                    "focus:outline-none focus-visible:!outline-none focus-visible:!outline-offset-0 focus:ring-2 focus:ring-ring focus:border-transparent",
                   )}
                 />
                 <span className="text-sm text-muted-foreground font-medium">
@@ -559,7 +603,7 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
                   className={cn(
                     "w-14 rounded-lg border border-input bg-background px-2 py-1.5",
                     "text-sm text-foreground text-center",
-                    "focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent",
+                    "focus:outline-none focus-visible:!outline-none focus-visible:!outline-offset-0 focus:ring-2 focus:ring-ring focus:border-transparent",
                   )}
                 />
               </div>
@@ -584,7 +628,7 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
             className={cn(
               "w-full rounded-lg border border-input bg-background px-3 py-2.5",
               "text-sm text-foreground placeholder:text-muted-foreground/60",
-              "focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent",
+              "focus:outline-none focus-visible:!outline-none focus-visible:!outline-offset-0 focus:ring-2 focus:ring-ring focus:border-transparent",
               "transition-shadow duration-150 resize-none",
             )}
           />

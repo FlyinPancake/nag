@@ -1,4 +1,5 @@
 mod chores;
+mod tags;
 
 use utoipa_axum::{router::OpenApiRouter, routes};
 
@@ -15,4 +16,9 @@ pub fn router() -> OpenApiRouter {
         .routes(routes!(chores::list_completions))
         // Completion routes
         .routes(routes!(chores::delete_completion))
+        // Tag routes
+        .routes(routes!(tags::list_tags))
+        .routes(routes!(tags::create_tag))
+        .routes(routes!(tags::update_tag))
+        .routes(routes!(tags::delete_tag))
 }

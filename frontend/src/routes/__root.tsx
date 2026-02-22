@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 import { DarkModeToggle } from "@/components/dark-mode-toggle";
+import { UserMenu } from "@/components/user-menu";
 import { QuickAddPalette } from "@/components/quick-add-palette";
 import { ChoreFormPanel } from "@/components/chore-form-panel";
 import { ChoreDetailPanel } from "@/components/chore-detail-panel";
@@ -89,6 +90,7 @@ function RootLayoutInner() {
                 </Button>
               </Link>
               <DarkModeToggle />
+              <UserMenu />
               {/* Cmd+K hint */}
               <kbd className="hidden lg:inline-flex items-center gap-0.5 bg-secondary text-muted-foreground rounded px-1.5 py-0.5 text-[0.65rem] font-mono border cursor-pointer hover:bg-secondary/80 transition-colors"
                 onClick={openPalette}

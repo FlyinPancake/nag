@@ -40,6 +40,16 @@ axum-extra = { version = "0.10", features = ["typed-header"] }
 tower = "0.5"
 tower-http = { version = "0.6", features = ["trace", "cors"] }
 
+# Sessions
+tower-sessions = { version = "0.14", features = ["memory-store"] }
+tower-sessions-sqlx-store = { version = "0.15", features = ["sqlite"] }
+time = "0.3"
+
+# OIDC
+openidconnect = { version = "4.0", default-features = false, features = ["reqwest"] }
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls"] }
+teloxide = { version = "0.13", default-features = false, features = ["rustls"] }
+
 # OpenAPI
 utoipa = { version = "5", features = ["axum_extras", "chrono", "uuid"] }
 utoipa-axum = "0.2"

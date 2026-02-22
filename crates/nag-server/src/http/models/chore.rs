@@ -3,8 +3,10 @@ use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use uuid::Uuid;
 
-use crate::db::models::{Chore, ChoreWithLastCompletion, Completion, ScheduleType};
+use crate::db::models::{Chore, ChoreWithLastCompletion, Completion, ScheduleType, Tag};
 use crate::services::ChoreWithDueInfo;
+
+use super::tag::TagResponse;
 
 // ============================================================================
 // Request DTOs
@@ -42,6 +44,9 @@ pub struct CreateChoreRequest {
     /// Schedule specification (either cron or interval)
     #[serde(flatten)]
     pub schedule: ScheduleInput,
+    /// Optional list of tag names to assign
+    #[serde(default)]
+    pub tags: Vec<String>,
 }
 
 /// Request body for updating a chore
@@ -55,6 +60,8 @@ pub struct UpdateChoreRequest {
     /// New schedule (optional, replaces the entire schedule)
     #[serde(default)]
     pub schedule: Option<ScheduleInput>,
+    /// New set of tag names (optional, replaces all tags when present)
+    pub tags: Option<Vec<String>>,
 }
 
 /// Custom deserializer that distinguishes between:
@@ -87,6 +94,8 @@ pub struct ListChoresQuery {
     pub cursor: Option<Uuid>,
     /// Maximum number of items to return
     pub limit: Option<i64>,
+    /// Filter by tag name
+    pub tag: Option<String>,
 }
 
 /// Query parameters for listing completions
@@ -104,6 +113,8 @@ pub struct DueChoresQuery {
     /// Include upcoming chores (not yet overdue)
     #[serde(default)]
     pub include_upcoming: bool,
+    /// Filter by tag name
+    pub tag: Option<String>,
 }
 
 // ============================================================================
@@ -131,12 +142,14 @@ pub struct ChoreResponse {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub interval_time_minute: Option<i32>,
     pub last_completed_at: Option<DateTime<Utc>>,
+    /// Tags assigned to this chore
+    pub tags: Vec<TagResponse>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
 
-impl From<Chore> for ChoreResponse {
-    fn from(chore: Chore) -> Self {
+impl ChoreResponse {
+    pub fn from_chore(chore: Chore, tags: Vec<Tag>) -> Self {
         Self {
             id: chore.id,
             name: chore.name,
@@ -147,14 +160,13 @@ impl From<Chore> for ChoreResponse {
             interval_time_hour: chore.interval_time_hour,
             interval_time_minute: chore.interval_time_minute,
             last_completed_at: None,
+            tags: tags.into_iter().map(TagResponse::from).collect(),
             created_at: chore.created_at,
             updated_at: chore.updated_at,
         }
     }
-}
 
-impl From<ChoreWithLastCompletion> for ChoreResponse {
-    fn from(chore: ChoreWithLastCompletion) -> Self {
+    pub fn from_chore_with_completion(chore: ChoreWithLastCompletion, tags: Vec<Tag>) -> Self {
         Self {
             id: chore.id,
             name: chore.name,
@@ -165,6 +177,7 @@ impl From<ChoreWithLastCompletion> for ChoreResponse {
             interval_time_hour: chore.interval_time_hour,
             interval_time_minute: chore.interval_time_minute,
             last_completed_at: chore.last_completed_at,
+            tags: tags.into_iter().map(TagResponse::from).collect(),
             created_at: chore.created_at,
             updated_at: chore.updated_at,
         }
@@ -194,12 +207,14 @@ pub struct ChoreWithDueResponse {
     pub last_completed_at: Option<DateTime<Utc>>,
     pub next_due: Option<DateTime<Utc>>,
     pub is_overdue: bool,
+    /// Tags assigned to this chore
+    pub tags: Vec<TagResponse>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
 
-impl From<ChoreWithDueInfo> for ChoreWithDueResponse {
-    fn from(info: ChoreWithDueInfo) -> Self {
+impl ChoreWithDueResponse {
+    pub fn from_due_info(info: ChoreWithDueInfo, tags: Vec<Tag>) -> Self {
         Self {
             id: info.chore.id,
             name: info.chore.name,
@@ -212,6 +227,7 @@ impl From<ChoreWithDueInfo> for ChoreWithDueResponse {
             last_completed_at: info.chore.last_completed_at,
             next_due: info.next_due,
             is_overdue: info.is_overdue,
+            tags: tags.into_iter().map(TagResponse::from).collect(),
             created_at: info.chore.created_at,
             updated_at: info.chore.updated_at,
         }

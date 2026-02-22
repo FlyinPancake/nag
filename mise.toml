@@ -24,15 +24,20 @@ run = "mise watch -r -w frontend preview-frontend"
 [tasks.run-backend]
 description = "Run development server"
 run = "cargo run -p nag-server --bin nag-server"
-env = { RUST_LOG = "debug" }
+env = { RUST_LOG = "info,nag_server=debug" }
 
 [tasks.dev-backend]
 description = "Run backend development server with hot reloading"
 run = "mise watch -r -w crates/nag-server run-backend"
 
+[tasks.dev-oidc]
+description = "Run local OIDC identity provider for development"
+dir = "dev/oidc-provider"
+run = "node server.mjs"
+
 [tasks.dev]
-description = "Run both backend and frontend development servers"
-depends = ["dev-backend", "dev-frontend"]
+description = "Run backend, frontend, and OIDC provider development servers"
+depends = ["dev-backend", "dev-frontend", "dev-oidc"]
 
 [tasks.preview]
 description = "Run both backend and frontend preview servers"
