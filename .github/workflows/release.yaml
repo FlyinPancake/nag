@@ -1,0 +1,30 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  container-build:
+    name: Container Build
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    uses: ./.github/workflows/build-container.yaml
+
+  create-release:
+    name: Create GitHub Release
+    needs: container-build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Create release from tag
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          generate_release_notes: true
+          prerelease: ${{ contains(github.ref_name, '-') }}
