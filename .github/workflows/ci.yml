@@ -16,8 +16,6 @@ jobs:
     defaults:
       run:
         working-directory: ./frontend
-    outputs:
-      frontend_artifact_id: ${{ steps.upload-frontend.outputs.artifact-id }}
     steps:
       - uses: actions/checkout@v4
 
@@ -39,10 +37,12 @@ jobs:
         run: bun run build
 
       - name: Upload Built Frontend
+        id: upload-frontend
         uses: actions/upload-artifact@v6
         with:
           name: frontend
-          path: ./dist
+          path: ./frontend/dist
+          if-no-files-found: error
 
       - name: Test
         run: bun run test:run
@@ -56,7 +56,7 @@ jobs:
 
       - uses: actions/download-artifact@v5
         with:
-          artifact-ids: ${{ needs.frontend.outputs.frontend_artifact_id }}
+          name: frontend
           path: ./frontend/dist
 
       - name: Install Rust
