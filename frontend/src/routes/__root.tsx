@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
-import { Plus, ListTodo } from "lucide-react";
+import { Plus, ListTodo, Tags } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
@@ -87,6 +87,11 @@ function RootLayoutInner() {
               <Link to="/chores">
                 <Button variant="ghost" size="icon" aria-label="View all chores">
                   <ListTodo className="h-5 w-5" />
+                </Button>
+              </Link>
+              <Link to="/tags">
+                <Button variant="ghost" size="icon" aria-label="Manage tags">
+                  <Tags className="h-5 w-5" />
                 </Button>
               </Link>
               <DarkModeToggle />
