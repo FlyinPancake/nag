@@ -10,6 +10,7 @@ import {
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
+import { buildCron, parseCron } from "@/lib/cron";
 import { useCreateChore, useUpdateChore } from "@/hooks/use-chores";
 import { TagInput } from "@/components/tag-input";
 import { tagsApi } from "@/lib/api";
@@ -57,8 +58,8 @@ const SCHEDULE_PRESETS: SchedulePresetDef[] = [
   {
     key: "monthly",
     label: "Monthly",
-    intervalDays: 30,
-    description: "Every 30 days",
+    intervalDays: null,
+    description: "Monthly",
   },
   {
     key: "custom",
@@ -97,6 +98,37 @@ function formatDate(date: Date): string {
   });
 }
 
+function ordinal(n: number): string {
+  const s = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
+function getNextMonthlyDates(dayOfMonth: number, count: number): Date[] {
+  const today = new Date();
+  const dates: Date[] = [];
+  let year = today.getFullYear();
+  let month = today.getMonth();
+
+  // Check current month first
+  const thisMonthDate = new Date(year, month, dayOfMonth);
+  if (thisMonthDate > today) {
+    dates.push(thisMonthDate);
+  }
+
+  // Walk forward through months
+  while (dates.length < count) {
+    month++;
+    if (month > 11) {
+      month = 0;
+      year++;
+    }
+    dates.push(new Date(year, month, dayOfMonth));
+  }
+
+  return dates;
+}
+
 function computeScheduleSummary(
   preset: SchedulePreset,
   customInterval: number,
@@ -104,6 +136,7 @@ function computeScheduleSummary(
   selectedDays: boolean[],
   timeHour: number,
   timeMinute: number,
+  dayOfMonth: number,
 ): { summary: string; nextDates: Date[] } {
   const timeStr = `${String(timeHour).padStart(2, "0")}:${String(timeMinute).padStart(2, "0")}`;
   let intervalDays: number;
@@ -130,6 +163,12 @@ function computeScheduleSummary(
         nextDates.push(d);
       }
     }
+    return { summary, nextDates };
+  }
+
+  if (preset === "monthly") {
+    summary = `${ordinal(dayOfMonth)} of every month at ${timeStr}`;
+    const nextDates = getNextMonthlyDates(dayOfMonth, 2);
     return { summary, nextDates };
   }
 
@@ -163,7 +202,8 @@ function presetFromDays(days: number): SchedulePreset {
   if (days === 3) return "every3days";
   if (days === 7) return "weekly";
   if (days === 14) return "biweekly";
-  if (days === 30) return "monthly";
+  // Note: monthly is now cron-based with a specific day-of-month.
+  // Old interval_days=30 chores are treated as custom intervals.
   return "custom";
 }
 
@@ -267,6 +307,7 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
   const [customUnit, setCustomUnit] = useState<"days" | "weeks">("days");
   const [timeHour, setTimeHour] = useState(9);
   const [timeMinute, setTimeMinute] = useState(0);
+  const [dayOfMonth, setDayOfMonth] = useState(1);
   const [notes, setNotes] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [newTagColors, setNewTagColors] = useState<Map<string, string>>(new Map());
@@ -282,7 +323,15 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
       setName(chore.name);
       setNotes(chore.description ?? "");
       setTags(chore.tags?.map((t) => t.name) ?? []);
-      if (chore.schedule_type === "interval" && chore.interval_days) {
+      if (chore.schedule_type === "cron" && chore.cron_schedule) {
+        const parsed = parseCron(chore.cron_schedule);
+        if (parsed.frequency === "monthly" && parsed.dayOfMonth) {
+          setSchedulePreset("monthly");
+          setDayOfMonth(parsed.dayOfMonth);
+          setTimeHour(parsed.hour ?? 9);
+          setTimeMinute(parsed.minute ?? 0);
+        }
+      } else if (chore.schedule_type === "interval" && chore.interval_days) {
         setSchedulePreset(presetFromDays(chore.interval_days));
         if (presetFromDays(chore.interval_days) === "custom") {
           setCustomInterval(chore.interval_days);
@@ -300,6 +349,7 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
       setCustomUnit("days");
       setTimeHour(9);
       setTimeMinute(0);
+      setDayOfMonth(1);
       setNotes("");
       setTags([]);
       setNewTagColors(new Map());
@@ -324,8 +374,9 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
         selectedDays,
         timeHour,
         timeMinute,
+        dayOfMonth,
       ),
-    [schedulePreset, customInterval, customUnit, selectedDays, timeHour, timeMinute],
+    [schedulePreset, customInterval, customUnit, selectedDays, timeHour, timeMinute, dayOfMonth],
   );
 
   // Compute interval days from current form state
@@ -355,17 +406,29 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
       }
     }
 
+    const isMonthly = schedulePreset === "monthly";
+
     if (isEditing && chore) {
       // Update existing chore
       const data: UpdateChoreRequest = {
         name: name.trim(),
         description: notes.trim() || null,
-        schedule: {
-          schedule_type: "interval",
-          interval_days: resolvedIntervalDays,
-          interval_time_hour: timeHour,
-          interval_time_minute: timeMinute,
-        },
+        schedule: isMonthly
+          ? {
+              schedule_type: "cron" as const,
+              cron_schedule: buildCron({
+                frequency: "monthly",
+                hour: timeHour,
+                minute: timeMinute,
+                dayOfMonth,
+              }),
+            }
+          : {
+              schedule_type: "interval" as const,
+              interval_days: resolvedIntervalDays,
+              interval_time_hour: timeHour,
+              interval_time_minute: timeMinute,
+            },
         tags,
       };
       try {
@@ -377,15 +440,28 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
       }
     } else {
       // Create new chore
-      const data: CreateChoreRequest = {
-        name: name.trim(),
-        description: notes.trim() || null,
-        schedule_type: "interval",
-        interval_days: resolvedIntervalDays,
-        interval_time_hour: timeHour,
-        interval_time_minute: timeMinute,
-        tags,
-      };
+      const data: CreateChoreRequest = isMonthly
+        ? {
+            name: name.trim(),
+            description: notes.trim() || null,
+            schedule_type: "cron" as const,
+            cron_schedule: buildCron({
+              frequency: "monthly",
+              hour: timeHour,
+              minute: timeMinute,
+              dayOfMonth,
+            }),
+            tags,
+          }
+        : {
+            name: name.trim(),
+            description: notes.trim() || null,
+            schedule_type: "interval" as const,
+            interval_days: resolvedIntervalDays,
+            interval_time_hour: timeHour,
+            interval_time_minute: timeMinute,
+            tags,
+          };
       try {
         await createChore.mutateAsync(data);
         toast.success("Chore created!");
@@ -501,6 +577,34 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
                 Repeat on
               </span>
               <DayPicker selected={selectedDays} onChange={setSelectedDays} />
+            </div>
+          )}
+
+          {/* Day of month for monthly */}
+          {schedulePreset === "monthly" && (
+            <div className="space-y-2">
+              <span className="text-xs text-muted-foreground">
+                On day
+              </span>
+              <div className="flex flex-wrap gap-1.5 md:gap-1">
+                {Array.from({ length: 28 }, (_, i) => i + 1).map((day) => (
+                  <button
+                    key={day}
+                    type="button"
+                    onClick={() => setDayOfMonth(day)}
+                    className={cn(
+                      "w-10 h-10 md:w-8 md:h-8 rounded-full text-sm md:text-xs font-medium transition-all duration-150",
+                      "flex items-center justify-center",
+                      "border",
+                      dayOfMonth === day
+                        ? "bg-foreground text-background border-foreground"
+                        : "bg-background text-muted-foreground border-border hover:border-foreground/30 hover:text-foreground",
+                    )}
+                  >
+                    {day}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
 

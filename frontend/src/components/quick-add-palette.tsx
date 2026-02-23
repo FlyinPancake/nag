@@ -11,6 +11,7 @@ import {
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
+import { buildCron } from "@/lib/cron";
 import { useCreateChore } from "@/hooks/use-chores";
 import type { CreateChoreRequest } from "@/lib/api";
 
@@ -204,6 +205,8 @@ export function QuickAddPalette({ open, onClose }: QuickAddPaletteProps) {
   const [scheduleLabel, setScheduleLabel] = useState("Weekly");
   const [timeHour, setTimeHour] = useState(9);
   const [timeMinute, setTimeMinute] = useState(0);
+  const [isMonthly, setIsMonthly] = useState(false);
+  const [dayOfMonth, setDayOfMonth] = useState(1);
   const [showNotes, setShowNotes] = useState(false);
   const [notes, setNotes] = useState("");
   const [detected, setDetected] = useState<DetectedSchedule | null>(null);
@@ -237,6 +240,7 @@ export function QuickAddPalette({ open, onClose }: QuickAddPaletteProps) {
     setDetected(result);
     if (result) {
       setScheduleLabel(result.label);
+      setIsMonthly(result.preset === "monthly");
       if (result.intervalDays) {
         setIntervalDays(result.intervalDays);
       }
@@ -255,6 +259,8 @@ export function QuickAddPalette({ open, onClose }: QuickAddPaletteProps) {
     setDetected(null);
     setIntervalDays(7);
     setScheduleLabel("Weekly");
+    setIsMonthly(false);
+    setDayOfMonth(1);
     setTimeHour(9);
     setTimeMinute(0);
     setShowNotes(false);
@@ -265,14 +271,26 @@ export function QuickAddPalette({ open, onClose }: QuickAddPaletteProps) {
     if (!cleanName) return;
 
     // Build the CreateChoreRequest
-    const request: CreateChoreRequest = {
-      name: cleanName,
-      description: notes.trim() || null,
-      schedule_type: "interval",
-      interval_days: intervalDays,
-      interval_time_hour: timeHour,
-      interval_time_minute: timeMinute,
-    };
+    const request: CreateChoreRequest = isMonthly
+      ? {
+          name: cleanName,
+          description: notes.trim() || null,
+          schedule_type: "cron" as const,
+          cron_schedule: buildCron({
+            frequency: "monthly",
+            hour: timeHour,
+            minute: timeMinute,
+            dayOfMonth,
+          }),
+        }
+      : {
+          name: cleanName,
+          description: notes.trim() || null,
+          schedule_type: "interval" as const,
+          interval_days: intervalDays,
+          interval_time_hour: timeHour,
+          interval_time_minute: timeMinute,
+        };
 
     try {
       await createChore.mutateAsync(request);
@@ -282,7 +300,7 @@ export function QuickAddPalette({ open, onClose }: QuickAddPaletteProps) {
     } catch {
       toast.error("Failed to create chore");
     }
-  }, [cleanName, notes, intervalDays, timeHour, timeMinute, createChore, resetForm, onClose]);
+  }, [cleanName, notes, isMonthly, dayOfMonth, intervalDays, timeHour, timeMinute, createChore, resetForm, onClose]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -378,9 +396,10 @@ export function QuickAddPalette({ open, onClose }: QuickAddPaletteProps) {
         <div className="flex items-center gap-2 flex-wrap">
           <ScheduleDropdown
             label={scheduleLabel}
-            onChange={(_preset, days, label) => {
+            onChange={(preset, days, label) => {
               setIntervalDays(days);
               setScheduleLabel(label);
+              setIsMonthly(preset === "monthly");
             }}
           />
           <TimePicker
@@ -426,6 +445,35 @@ export function QuickAddPalette({ open, onClose }: QuickAddPaletteProps) {
             </button>
           </div>
         </div>
+
+        {/* Day of month picker for monthly */}
+        {isMonthly && (
+          <div className="mt-3 animate-pop-in">
+            <div className="flex items-center gap-2 mb-2">
+              <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-xs font-medium text-muted-foreground">On day of month</span>
+            </div>
+            <div className="flex flex-wrap gap-1.5 md:gap-1">
+              {Array.from({ length: 28 }, (_, i) => i + 1).map((day) => (
+                <button
+                  key={day}
+                  type="button"
+                  onClick={() => setDayOfMonth(day)}
+                  className={cn(
+                    "w-9 h-9 md:w-7 md:h-7 rounded-full text-xs font-medium transition-all duration-150",
+                    "flex items-center justify-center",
+                    "border",
+                    dayOfMonth === day
+                      ? "bg-foreground text-background border-foreground"
+                      : "bg-background text-muted-foreground border-border hover:border-foreground/30 hover:text-foreground",
+                  )}
+                >
+                  {day}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Notes textarea */}
         {showNotes && (
