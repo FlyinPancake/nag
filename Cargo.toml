@@ -11,11 +11,11 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 uuid = { version = "1", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
-croner = "2"
+croner = "3"
 
 # Error handling
 color-eyre = "0.6"
-thiserror = "1.0"
+thiserror = "2.0"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter", "json"] }
 
@@ -36,19 +36,19 @@ dotenvy = "0.15"
 
 # Web
 axum = "0.8"
-axum-extra = { version = "0.10", features = ["typed-header"] }
+axum-extra = { version = "0.12", features = ["typed-header"] }
 tower = "0.5"
 tower-http = { version = "0.6", features = ["trace", "cors"] }
 
 # Sessions
-tower-sessions = { version = "0.14", features = ["memory-store"] }
+tower-sessions = { version = "0.15", features = ["memory-store"] }
 tower-sessions-sqlx-store = { version = "0.15", features = ["sqlite"] }
 time = "0.3"
 
 # OIDC
 openidconnect = { version = "4.0", default-features = false, features = ["reqwest"] }
 reqwest = { version = "0.12", default-features = false, features = ["rustls-tls"] }
-teloxide = { version = "0.13", default-features = false, features = ["rustls"] }
+teloxide = { version = "0.17", default-features = false, features = ["rustls"] }
 
 # OpenAPI
 utoipa = { version = "5", features = ["axum_extras", "chrono", "uuid"] }
