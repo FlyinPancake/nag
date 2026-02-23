@@ -38,7 +38,7 @@ RUN cargo build --release --package nag-server
 # =============================================================================
 # Stage 3: Runtime
 # =============================================================================
-FROM alpine:3.21 AS runtime
+FROM alpine:3.23 AS runtime
 
 # Install runtime dependencies (CA certs for HTTPS, timezone data, su-exec for privilege dropping)
 RUN apk add --no-cache ca-certificates tzdata su-exec
