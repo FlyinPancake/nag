@@ -60,7 +60,7 @@ RUN chown -R nag:nag /app
 
 # Default environment variables
 ENV SERVER_PORT=3000
-ENV DATABASE_URL=sqlite:///app/data/nag.db
+ENV DATABASE_URL=sqlite:///app/data/nag.db?mode=rwc
 ENV JSON_LOGS=true
 ENV TZ=UTC
 ENV PUID=1000
@@ -68,9 +68,6 @@ ENV PGID=1000
 
 # Expose port
 EXPOSE 3000
-
-# Create volume mount point for database
-VOLUME ["/app/data"]
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
