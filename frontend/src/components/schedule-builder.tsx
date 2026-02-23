@@ -282,7 +282,7 @@ export function ScheduleBuilder({ value, onChange }: ScheduleBuilderProps) {
               type="button"
               onClick={() => handlePresetSelect(preset.id)}
               className={cn(
-                "px-3 py-1.5 rounded-full text-sm font-medium transition-all",
+                "px-4 py-2.5 md:px-3 md:py-1.5 rounded-full text-sm font-medium transition-all",
                 "border hover:border-primary/50",
                 activePreset === preset.id
                   ? "bg-[var(--color-preset-active)] border-primary/30 text-foreground"
@@ -314,7 +314,7 @@ export function ScheduleBuilder({ value, onChange }: ScheduleBuilderProps) {
           type="button"
           onClick={() => setIsExpanded(!isExpanded)}
           className={cn(
-            "flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium",
+            "flex items-center gap-1 px-3 py-2 md:px-2 md:py-1 rounded-md text-sm md:text-xs font-medium",
             "text-muted-foreground hover:text-foreground hover:bg-muted/50",
             "transition-colors shrink-0",
           )}
@@ -431,7 +431,7 @@ export function ScheduleBuilder({ value, onChange }: ScheduleBuilderProps) {
                               onClick={() => toggleDay(day.value)}
                               title={day.full}
                               className={cn(
-                                "w-8 h-8 rounded-full text-xs font-semibold transition-all",
+                                "w-10 h-10 md:w-8 md:h-8 rounded-full text-sm md:text-xs font-semibold transition-all",
                                 "border focus:outline-none focus:ring-2 focus:ring-primary/50",
                                 isSelected
                                   ? "bg-primary text-primary-foreground border-primary"
@@ -475,39 +475,22 @@ export function ScheduleBuilder({ value, onChange }: ScheduleBuilderProps) {
                         <Clock className="h-3 w-3" />
                         Time
                       </Label>
-                      <div className="flex items-center gap-1.5">
-                        <Select
-                          value={String(cronHour)}
-                          onValueChange={(v) => setCronHour(Number(v))}
-                        >
-                          <SelectTrigger className="w-16 bg-background h-9">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {Array.from({ length: 24 }, (_, i) => (
-                              <SelectItem key={i} value={String(i)}>
-                                {String(i).padStart(2, "0")}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <span className="text-muted-foreground">:</span>
-                        <Select
-                          value={String(cronMinute)}
-                          onValueChange={(v) => setCronMinute(Number(v))}
-                        >
-                          <SelectTrigger className="w-16 bg-background h-9">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {[0, 15, 30, 45].map((m) => (
-                              <SelectItem key={m} value={String(m)}>
-                                {String(m).padStart(2, "0")}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
+                      <input
+                        type="time"
+                        value={`${String(cronHour).padStart(2, "0")}:${String(cronMinute).padStart(2, "0")}`}
+                        onChange={(e) => {
+                          const [h, m] = e.target.value.split(":").map(Number);
+                          if (!isNaN(h) && !isNaN(m)) {
+                            setCronHour(h);
+                            setCronMinute(m);
+                          }
+                        }}
+                        className={cn(
+                          "rounded-lg border border-input bg-background px-3 py-2 h-9",
+                          "text-base md:text-sm text-foreground",
+                          "focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent",
+                        )}
+                      />
                     </div>
                   )}
 
@@ -557,7 +540,7 @@ export function ScheduleBuilder({ value, onChange }: ScheduleBuilderProps) {
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowAdvanced(!showAdvanced)}
-                className="w-full justify-center gap-1 text-xs text-muted-foreground hover:text-foreground h-8"
+                className="w-full justify-center gap-1 text-sm md:text-xs text-muted-foreground hover:text-foreground h-11 md:h-8"
               >
                 {showAdvanced ? (
                   <>
@@ -619,47 +602,32 @@ export function ScheduleBuilder({ value, onChange }: ScheduleBuilderProps) {
                     type="checkbox"
                     checked={showIntervalTime}
                     onChange={(e) => setShowIntervalTime(e.target.checked)}
-                    className="h-3.5 w-3.5 rounded border-border accent-primary"
+                    className="h-5 w-5 md:h-3.5 md:w-3.5 rounded border-border accent-primary"
                   />
-                  <span className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
+                  <span className="text-sm md:text-xs text-muted-foreground flex items-center gap-1">
+                    <Clock className="h-4 w-4 md:h-3 md:w-3" />
                     Remind at specific time
                   </span>
                 </label>
 
                 {showIntervalTime && (
-                  <div className="flex items-center gap-1.5 pl-5">
-                    <Select
-                      value={String(intervalHour ?? 9)}
-                      onValueChange={(v) => setIntervalHour(Number(v))}
-                    >
-                      <SelectTrigger className="w-16 bg-background h-9">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Array.from({ length: 24 }, (_, i) => (
-                          <SelectItem key={i} value={String(i)}>
-                            {String(i).padStart(2, "0")}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <span className="text-muted-foreground">:</span>
-                    <Select
-                      value={String(intervalMinute ?? 0)}
-                      onValueChange={(v) => setIntervalMinute(Number(v))}
-                    >
-                      <SelectTrigger className="w-16 bg-background h-9">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {[0, 15, 30, 45].map((m) => (
-                          <SelectItem key={m} value={String(m)}>
-                            {String(m).padStart(2, "0")}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  <div className="pl-5">
+                    <input
+                      type="time"
+                      value={`${String(intervalHour ?? 9).padStart(2, "0")}:${String(intervalMinute ?? 0).padStart(2, "0")}`}
+                      onChange={(e) => {
+                        const [h, m] = e.target.value.split(":").map(Number);
+                        if (!isNaN(h) && !isNaN(m)) {
+                          setIntervalHour(h);
+                          setIntervalMinute(m);
+                        }
+                      }}
+                      className={cn(
+                        "rounded-lg border border-input bg-background px-3 py-2 h-9",
+                        "text-base md:text-sm text-foreground",
+                        "focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent",
+                      )}
+                    />
                   </div>
                 )}
               </div>

@@ -125,13 +125,13 @@ function ScheduleDropdown({ label, onChange }: ScheduleDropdownProps) {
         type="button"
         onClick={() => setOpen(!open)}
         className={cn(
-          "flex items-center gap-1.5 border rounded-full px-3 py-1 text-xs font-medium",
+          "flex items-center gap-1.5 border rounded-full px-4 py-2 md:px-3 md:py-1 text-sm md:text-xs font-medium",
           "transition-colors hover:bg-secondary text-foreground",
         )}
       >
-        <Calendar className="h-3 w-3" />
+        <Calendar className="h-4 w-4 md:h-3 md:w-3" />
         <span>{label}</span>
-        <ChevronDown className="h-3 w-3" />
+        <ChevronDown className="h-4 w-4 md:h-3 md:w-3" />
       </button>
       {open && (
         <div className="absolute top-full left-0 mt-1.5 bg-card border rounded-lg shadow-lg py-1 z-50 min-w-[160px] animate-pop-in">
@@ -144,7 +144,7 @@ function ScheduleDropdown({ label, onChange }: ScheduleDropdownProps) {
                 setOpen(false);
               }}
               className={cn(
-                "w-full text-left px-3 py-1.5 text-xs transition-colors hover:bg-secondary",
+                "w-full text-left px-3 py-2.5 md:py-1.5 text-sm md:text-xs transition-colors hover:bg-secondary",
                 opt.label === label && "font-semibold text-foreground bg-secondary/50",
               )}
             >
@@ -158,7 +158,7 @@ function ScheduleDropdown({ label, onChange }: ScheduleDropdownProps) {
 }
 
 // ---------------------------------------------------------------------------
-// Time picker
+// Time picker (native)
 // ---------------------------------------------------------------------------
 
 interface TimePickerProps {
@@ -168,75 +168,23 @@ interface TimePickerProps {
 }
 
 function TimePicker({ hour, minute, onChange }: TimePickerProps) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  const displayTime = useMemo(() => {
-    const h = hour % 12 || 12;
-    const ampm = hour < 12 ? "AM" : "PM";
-    const m = minute.toString().padStart(2, "0");
-    return `${h}:${m} ${ampm}`;
-  }, [hour, minute]);
-
-  const timeOptions = useMemo(() => {
-    const opts: { hour: number; minute: number; label: string }[] = [];
-    for (let h = 6; h <= 22; h++) {
-      for (const m of [0, 30]) {
-        const display = `${(h % 12 || 12).toString()}:${m.toString().padStart(2, "0")} ${h < 12 ? "AM" : "PM"}`;
-        opts.push({ hour: h, minute: m, label: display });
-      }
-    }
-    return opts;
-  }, []);
-
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    }
-    if (open) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => document.removeEventListener("mousedown", handleClickOutside);
-    }
-  }, [open]);
-
   return (
-    <div className="relative" ref={ref}>
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
+    <div className="flex items-center gap-1.5 border rounded-full px-3 py-1.5 md:px-2.5 md:py-0.5">
+      <Clock className="h-4 w-4 md:h-3 md:w-3 text-muted-foreground shrink-0" />
+      <input
+        type="time"
+        value={`${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`}
+        onChange={(e) => {
+          const [h, m] = e.target.value.split(":").map(Number);
+          if (!isNaN(h) && !isNaN(m)) {
+            onChange(h, m);
+          }
+        }}
         className={cn(
-          "flex items-center gap-1.5 border rounded-full px-3 py-1 text-xs font-medium",
-          "transition-colors hover:bg-secondary text-foreground",
+          "bg-transparent border-none outline-none",
+          "text-sm md:text-xs font-medium text-foreground",
         )}
-      >
-        <Clock className="h-3 w-3" />
-        <span>{displayTime}</span>
-        <ChevronDown className="h-3 w-3" />
-      </button>
-      {open && (
-        <div className="absolute top-full left-0 mt-1.5 bg-card border rounded-lg shadow-lg py-1 z-50 min-w-[120px] max-h-48 overflow-y-auto animate-pop-in">
-          {timeOptions.map((opt) => (
-            <button
-              key={`${opt.hour}-${opt.minute}`}
-              type="button"
-              onClick={() => {
-                onChange(opt.hour, opt.minute);
-                setOpen(false);
-              }}
-              className={cn(
-                "w-full text-left px-3 py-1.5 text-xs transition-colors hover:bg-secondary",
-                opt.hour === hour &&
-                  opt.minute === minute &&
-                  "font-semibold text-foreground bg-secondary/50",
-              )}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-      )}
+      />
     </div>
   );
 }
@@ -385,9 +333,9 @@ export function QuickAddPalette({ open, onClose }: QuickAddPaletteProps) {
           <button
             type="button"
             onClick={onClose}
-            className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+            className="p-2 md:p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
           >
-            <X className="h-4 w-4" />
+            <X className="h-5 w-5 md:h-4 md:w-4" />
           </button>
         </div>
 
@@ -447,12 +395,12 @@ export function QuickAddPalette({ open, onClose }: QuickAddPaletteProps) {
             type="button"
             onClick={() => setShowNotes(!showNotes)}
             className={cn(
-              "flex items-center gap-1.5 border rounded-full px-3 py-1 text-xs font-medium",
+              "flex items-center gap-1.5 border rounded-full px-4 py-2 md:px-3 md:py-1 text-sm md:text-xs font-medium",
               "transition-colors hover:bg-secondary",
               showNotes ? "text-foreground bg-secondary/50" : "text-muted-foreground",
             )}
           >
-            <StickyNote className="h-3 w-3" />
+            <StickyNote className="h-4 w-4 md:h-3 md:w-3" />
             <span>{showNotes ? "Notes" : "+ Notes"}</span>
           </button>
 
@@ -467,7 +415,7 @@ export function QuickAddPalette({ open, onClose }: QuickAddPaletteProps) {
               onClick={handleSubmit}
               disabled={!cleanName || createChore.isPending}
               className={cn(
-                "flex items-center gap-1.5 rounded-full px-4 py-1 text-xs font-semibold",
+                "flex items-center gap-1.5 rounded-full px-5 py-2 md:px-4 md:py-1 text-sm md:text-xs font-semibold",
                 "transition-colors",
                 cleanName && !createChore.isPending
                   ? "bg-primary text-primary-foreground hover:bg-primary/90"
@@ -488,7 +436,7 @@ export function QuickAddPalette({ open, onClose }: QuickAddPaletteProps) {
               placeholder="Add notes..."
               rows={2}
               className={cn(
-                "w-full bg-secondary/30 border rounded-lg px-3 py-2 text-sm",
+                "w-full bg-secondary/30 border rounded-lg px-3 py-2 text-base md:text-sm",
                 "text-foreground placeholder:text-muted-foreground/50",
                 "outline-none focus:ring-1 focus:ring-ring resize-none",
               )}

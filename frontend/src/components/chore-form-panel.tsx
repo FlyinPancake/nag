@@ -179,7 +179,7 @@ function DayPicker({
   onChange: (days: boolean[]) => void;
 }) {
   return (
-    <div className="flex gap-1.5">
+    <div className="flex gap-1.5 md:gap-1.5">
       {DAYS_OF_WEEK.map((label, i) => (
         <button
           key={i}
@@ -190,7 +190,7 @@ function DayPicker({
             onChange(next);
           }}
           className={cn(
-            "w-8 h-8 rounded-full text-xs font-medium transition-all duration-150",
+            "w-10 h-10 md:w-8 md:h-8 rounded-full text-sm md:text-xs font-medium transition-all duration-150",
             "flex items-center justify-center",
             "border",
             selected[i]
@@ -270,7 +270,7 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
   const [notes, setNotes] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [newTagColors, setNewTagColors] = useState<Map<string, string>>(new Map());
-  const [showAdvanced, setShowAdvanced] = useState(false);
+
 
   const createChore = useCreateChore();
   const updateChore = useUpdateChore();
@@ -303,7 +303,6 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
       setNotes("");
       setTags([]);
       setNewTagColors(new Map());
-      setShowAdvanced(false);
     }
   }, [chore]);
 
@@ -409,13 +408,13 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
           type="button"
           onClick={onClose}
           className={cn(
-            "w-8 h-8 rounded-full flex items-center justify-center",
+            "w-10 h-10 md:w-8 md:h-8 rounded-full flex items-center justify-center",
             "text-muted-foreground hover:text-foreground hover:bg-muted",
             "transition-colors duration-150",
           )}
           aria-label="Close panel"
         >
-          <X className="h-4 w-4" />
+          <X className="h-5 w-5 md:h-4 md:w-4" />
         </button>
       </div>
 
@@ -434,7 +433,7 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
             placeholder="e.g. Vacuum the living room"
             className={cn(
               "w-full rounded-lg border border-input bg-background px-3 py-2.5",
-              "text-sm text-foreground placeholder:text-muted-foreground/60",
+              "text-base md:text-sm text-foreground placeholder:text-muted-foreground/60",
               "focus:outline-none focus-visible:!outline-none focus-visible:!outline-offset-0 focus:ring-2 focus:ring-ring focus:border-transparent",
               "transition-shadow duration-150",
             )}
@@ -483,7 +482,7 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
                 type="button"
                 onClick={() => setSchedulePreset(preset.key)}
                 className={cn(
-                  "px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-150",
+                  "px-4 py-2.5 md:px-3 md:py-1.5 rounded-full text-sm md:text-xs font-medium transition-all duration-150",
                   "border",
                   schedulePreset === preset.key
                     ? "bg-foreground text-background border-foreground"
@@ -521,7 +520,7 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
                 }
                 className={cn(
                   "w-16 rounded-lg border border-input bg-background px-2.5 py-1.5",
-                  "text-sm text-foreground text-center",
+                  "text-base md:text-sm text-foreground text-center",
                   "focus:outline-none focus-visible:!outline-none focus-visible:!outline-offset-0 focus:ring-2 focus:ring-ring focus:border-transparent",
                 )}
               />
@@ -533,7 +532,7 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
                   }
                   className={cn(
                     "appearance-none rounded-lg border border-input bg-background pl-3 pr-7 py-1.5",
-                    "text-sm text-foreground",
+                    "text-base md:text-sm text-foreground",
                     "focus:outline-none focus-visible:!outline-none focus-visible:!outline-offset-0 focus:ring-2 focus:ring-ring focus:border-transparent",
                     "cursor-pointer",
                   )}
@@ -547,67 +546,24 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
           )}
 
           {/* Time picker */}
-          <div className="space-y-2">
-            <button
-              type="button"
-              onClick={() => setShowAdvanced(!showAdvanced)}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <Clock className="h-3.5 w-3.5" />
-              <span>
-                Time: {String(timeHour).padStart(2, "0")}:
-                {String(timeMinute).padStart(2, "0")}
-              </span>
-              <ChevronDown
-                className={cn(
-                  "h-3 w-3 transition-transform duration-200",
-                  showAdvanced && "rotate-180",
-                )}
-              />
-            </button>
-            {showAdvanced && (
-              <div className="flex items-center gap-2 pl-5">
-                <input
-                  type="number"
-                  min={0}
-                  max={23}
-                  value={timeHour}
-                  onChange={(e) =>
-                    setTimeHour(
-                      Math.min(23, Math.max(0, parseInt(e.target.value) || 0)),
-                    )
-                  }
-                  className={cn(
-                    "w-14 rounded-lg border border-input bg-background px-2 py-1.5",
-                    "text-sm text-foreground text-center",
-                    "focus:outline-none focus-visible:!outline-none focus-visible:!outline-offset-0 focus:ring-2 focus:ring-ring focus:border-transparent",
-                  )}
-                />
-                <span className="text-sm text-muted-foreground font-medium">
-                  :
-                </span>
-                <input
-                  type="number"
-                  min={0}
-                  max={59}
-                  step={5}
-                  value={timeMinute}
-                  onChange={(e) =>
-                    setTimeMinute(
-                      Math.min(
-                        59,
-                        Math.max(0, parseInt(e.target.value) || 0),
-                      ),
-                    )
-                  }
-                  className={cn(
-                    "w-14 rounded-lg border border-input bg-background px-2 py-1.5",
-                    "text-sm text-foreground text-center",
-                    "focus:outline-none focus-visible:!outline-none focus-visible:!outline-offset-0 focus:ring-2 focus:ring-ring focus:border-transparent",
-                  )}
-                />
-              </div>
-            )}
+          <div className="flex items-center gap-2">
+            <Clock className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+            <input
+              type="time"
+              value={`${String(timeHour).padStart(2, "0")}:${String(timeMinute).padStart(2, "0")}`}
+              onChange={(e) => {
+                const [h, m] = e.target.value.split(":").map(Number);
+                if (!isNaN(h) && !isNaN(m)) {
+                  setTimeHour(h);
+                  setTimeMinute(m);
+                }
+              }}
+              className={cn(
+                "rounded-lg border border-input bg-background px-3 py-2",
+                "text-base md:text-sm text-foreground",
+                "focus:outline-none focus-visible:!outline-none focus-visible:!outline-offset-0 focus:ring-2 focus:ring-ring focus:border-transparent",
+              )}
+            />
           </div>
         </div>
 
@@ -627,7 +583,7 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
             rows={3}
             className={cn(
               "w-full rounded-lg border border-input bg-background px-3 py-2.5",
-              "text-sm text-foreground placeholder:text-muted-foreground/60",
+              "text-base md:text-sm text-foreground placeholder:text-muted-foreground/60",
               "focus:outline-none focus-visible:!outline-none focus-visible:!outline-offset-0 focus:ring-2 focus:ring-ring focus:border-transparent",
               "transition-shadow duration-150 resize-none",
             )}

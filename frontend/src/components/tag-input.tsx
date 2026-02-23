@@ -195,7 +195,7 @@ export function TagInput({
           onFocus={() => setIsOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder={value.length === 0 ? placeholder : ""}
-          className="flex-1 min-w-[80px] bg-transparent text-sm outline-none focus-visible:!outline-none focus-visible:!outline-offset-0 placeholder:text-muted-foreground"
+          className="flex-1 min-w-[80px] bg-transparent text-base md:text-sm outline-none focus-visible:!outline-none focus-visible:!outline-offset-0 placeholder:text-muted-foreground"
         />
       </div>
 
@@ -221,7 +221,7 @@ export function TagInput({
                   {/* Color dot */}
                   <button
                     type="button"
-                    className="w-3 h-3 rounded-full shrink-0 ring-1 ring-border hover:ring-foreground/40 transition-all"
+                    className="w-6 h-6 md:w-3 md:h-3 rounded-full shrink-0 ring-1 ring-border hover:ring-foreground/40 transition-all"
                     style={tagDotStyle(resolveTagColorKey(tag.color, tag.name))}
                     onMouseDown={(e) => {
                       e.preventDefault();
@@ -235,13 +235,13 @@ export function TagInput({
                 </div>
                 {/* Inline color picker for this tag */}
                 {colorPickerTagId === tag.id && (
-                  <div className="flex items-center gap-1 px-3 py-1.5 bg-muted/30">
+                  <div className="flex items-center gap-2.5 md:gap-1 px-3 py-2.5 md:py-1.5 bg-muted/30 flex-wrap">
                     {TAG_COLORS.map((c) => (
                       <button
                         key={c.key}
                         type="button"
                         className={cn(
-                          "w-4 h-4 rounded-full transition-all ring-1",
+                          "w-7 h-7 md:w-4 md:h-4 rounded-full transition-all ring-1",
                           resolveTagColorKey(tag.color, tag.name) === c.key
                             ? "ring-foreground scale-110"
                             : "ring-border hover:ring-foreground/40 hover:scale-110",
@@ -288,8 +288,8 @@ export function TagInput({
                   </span>
                 </div>
                 {/* Color swatch row for new tag */}
-                <div className="flex items-center gap-1 px-3 py-1.5 bg-muted/30">
-                  <span className="text-[0.65rem] text-muted-foreground mr-1">
+                <div className="flex items-center gap-2.5 md:gap-1 px-3 py-2.5 md:py-1.5 bg-muted/30 flex-wrap">
+                  <span className="text-xs md:text-[0.65rem] text-muted-foreground mr-1">
                     Color:
                   </span>
                   {TAG_COLORS.map((c) => {
@@ -302,7 +302,7 @@ export function TagInput({
                         key={c.key}
                         type="button"
                         className={cn(
-                          "w-4 h-4 rounded-full transition-all ring-1",
+                          "w-7 h-7 md:w-4 md:h-4 rounded-full transition-all ring-1",
                           isSelected
                             ? "ring-foreground scale-110"
                             : "ring-border hover:ring-foreground/40 hover:scale-110",
