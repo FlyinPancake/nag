@@ -4,6 +4,7 @@ node_modules/
 # Build output (keep .gitkeep for rust-embed)
 dist/*
 !dist/.gitkeep
+coverage/
 
 # Generated files (TanStack Router)
 src/routeTree.gen.ts
