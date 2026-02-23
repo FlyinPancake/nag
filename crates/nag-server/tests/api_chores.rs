@@ -889,8 +889,7 @@ async fn test_create_once_in_a_while_chore() {
     let server = common::create_test_app().await;
 
     let chore =
-        common::create_once_in_a_while_chore(&server, "Clean the attic", Some("When needed"))
-            .await;
+        common::create_once_in_a_while_chore(&server, "Clean the attic", Some("When needed")).await;
 
     assert_eq!(chore.name, "Clean the attic");
     assert_eq!(chore.description.as_deref(), Some("When needed"));
