@@ -32,6 +32,8 @@ pub enum ScheduleInput {
         #[serde(default)]
         interval_time_minute: Option<i32>,
     },
+    /// No fixed schedule — done whenever needed, completions are still logged
+    OnceInAWhile {},
 }
 
 /// Request body for creating a new chore
@@ -127,7 +129,7 @@ pub struct ChoreResponse {
     pub id: Uuid,
     pub name: String,
     pub description: Option<String>,
-    /// Schedule type: "cron" or "interval"
+    /// Schedule type: "cron", "interval", or "once_in_a_while"
     pub schedule_type: ScheduleType,
     /// Cron expression (present when schedule_type is "cron")
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -190,7 +192,7 @@ pub struct ChoreWithDueResponse {
     pub id: Uuid,
     pub name: String,
     pub description: Option<String>,
-    /// Schedule type: "cron" or "interval"
+    /// Schedule type: "cron", "interval", or "once_in_a_while"
     pub schedule_type: ScheduleType,
     /// Cron expression (present when schedule_type is "cron")
     #[serde(skip_serializing_if = "Option::is_none")]

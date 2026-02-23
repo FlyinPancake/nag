@@ -175,6 +175,23 @@ pub async fn complete_chore(
     response.json()
 }
 
+/// Helper to create a once_in_a_while chore.
+pub async fn create_once_in_a_while_chore(
+    server: &TestServer,
+    name: &str,
+    description: Option<&str>,
+) -> ChoreResponse {
+    let body = serde_json::json!({
+        "name": name,
+        "description": description,
+        "schedule_type": "once_in_a_while"
+    });
+
+    let response = server.post("/api/chores").json(&body).await;
+    response.assert_status(StatusCode::CREATED);
+    response.json()
+}
+
 /// Helper to create a tag via the API.
 pub async fn create_tag(server: &TestServer, name: &str) -> TagResponse {
     let body = serde_json::json!({ "name": name });

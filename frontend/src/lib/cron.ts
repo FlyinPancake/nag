@@ -7,7 +7,7 @@ const DAYS_FULL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Frid
 // Schedule Types
 // ============================================================================
 
-export type ScheduleType = "cron" | "interval";
+export type ScheduleType = "cron" | "interval" | "once_in_a_while";
 
 export interface CronSchedule {
   type: "cron";
@@ -21,7 +21,11 @@ export interface IntervalSchedule {
   intervalTimeMinute?: number;
 }
 
-export type Schedule = CronSchedule | IntervalSchedule;
+export interface OnceInAWhileSchedule {
+  type: "once_in_a_while";
+}
+
+export type Schedule = CronSchedule | IntervalSchedule | OnceInAWhileSchedule;
 
 // ============================================================================
 // Interval Schedule Utilities
@@ -93,6 +97,8 @@ export function formatIntervalHuman(
 export function formatScheduleHuman(schedule: Schedule): string {
   if (schedule.type === "cron") {
     return formatCronHuman(schedule.cronExpression);
+  } else if (schedule.type === "once_in_a_while") {
+    return "Once in a while";
   } else {
     return formatIntervalHuman(
       schedule.intervalDays,
@@ -293,6 +299,11 @@ export function getNextOccurrences(
   from: Date = new Date(),
 ): Occurrence[] {
   const occurrences: Occurrence[] = [];
+
+  if (schedule.type === "once_in_a_while") {
+    // No fixed schedule — no predictable occurrences
+    return occurrences;
+  }
 
   if (schedule.type === "interval") {
     // For interval schedules, occurrences are evenly spaced

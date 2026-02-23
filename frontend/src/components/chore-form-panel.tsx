@@ -26,7 +26,8 @@ type SchedulePreset =
   | "weekly"
   | "biweekly"
   | "monthly"
-  | "custom";
+  | "custom"
+  | "once_in_a_while";
 
 interface SchedulePresetDef {
   key: SchedulePreset;
@@ -66,6 +67,12 @@ const SCHEDULE_PRESETS: SchedulePresetDef[] = [
     label: "Custom",
     intervalDays: null,
     description: "Custom interval",
+  },
+  {
+    key: "once_in_a_while",
+    label: "Once in a while",
+    intervalDays: null,
+    description: "No fixed schedule",
   },
 ];
 
@@ -138,6 +145,10 @@ function computeScheduleSummary(
   timeMinute: number,
   dayOfMonth: number,
 ): { summary: string; nextDates: Date[] } {
+  if (preset === "once_in_a_while") {
+    return { summary: "No fixed schedule", nextDates: [] };
+  }
+
   const timeStr = `${String(timeHour).padStart(2, "0")}:${String(timeMinute).padStart(2, "0")}`;
   let intervalDays: number;
   let summary: string;
@@ -323,7 +334,9 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
       setName(chore.name);
       setNotes(chore.description ?? "");
       setTags(chore.tags?.map((t) => t.name) ?? []);
-      if (chore.schedule_type === "cron" && chore.cron_schedule) {
+      if (chore.schedule_type === "once_in_a_while") {
+        setSchedulePreset("once_in_a_while");
+      } else if (chore.schedule_type === "cron" && chore.cron_schedule) {
         const parsed = parseCron(chore.cron_schedule);
         if (parsed.frequency === "monthly" && parsed.dayOfMonth) {
           setSchedulePreset("monthly");
@@ -407,28 +420,38 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
     }
 
     const isMonthly = schedulePreset === "monthly";
+    const isOnceInAWhile = schedulePreset === "once_in_a_while";
+
+    // Build schedule object based on preset
+    const buildScheduleForUpdate = () => {
+      if (isOnceInAWhile) {
+        return { schedule_type: "once_in_a_while" as const };
+      }
+      if (isMonthly) {
+        return {
+          schedule_type: "cron" as const,
+          cron_schedule: buildCron({
+            frequency: "monthly",
+            hour: timeHour,
+            minute: timeMinute,
+            dayOfMonth,
+          }),
+        };
+      }
+      return {
+        schedule_type: "interval" as const,
+        interval_days: resolvedIntervalDays,
+        interval_time_hour: timeHour,
+        interval_time_minute: timeMinute,
+      };
+    };
 
     if (isEditing && chore) {
       // Update existing chore
       const data: UpdateChoreRequest = {
         name: name.trim(),
         description: notes.trim() || null,
-        schedule: isMonthly
-          ? {
-              schedule_type: "cron" as const,
-              cron_schedule: buildCron({
-                frequency: "monthly",
-                hour: timeHour,
-                minute: timeMinute,
-                dayOfMonth,
-              }),
-            }
-          : {
-              schedule_type: "interval" as const,
-              interval_days: resolvedIntervalDays,
-              interval_time_hour: timeHour,
-              interval_time_minute: timeMinute,
-            },
+        schedule: buildScheduleForUpdate(),
         tags,
       };
       try {
@@ -440,28 +463,38 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
       }
     } else {
       // Create new chore
-      const data: CreateChoreRequest = isMonthly
-        ? {
-            name: name.trim(),
-            description: notes.trim() || null,
-            schedule_type: "cron" as const,
-            cron_schedule: buildCron({
-              frequency: "monthly",
-              hour: timeHour,
-              minute: timeMinute,
-              dayOfMonth,
-            }),
-            tags,
-          }
-        : {
-            name: name.trim(),
-            description: notes.trim() || null,
-            schedule_type: "interval" as const,
-            interval_days: resolvedIntervalDays,
-            interval_time_hour: timeHour,
-            interval_time_minute: timeMinute,
-            tags,
-          };
+      let data: CreateChoreRequest;
+      if (isOnceInAWhile) {
+        data = {
+          name: name.trim(),
+          description: notes.trim() || null,
+          schedule_type: "once_in_a_while" as const,
+          tags,
+        };
+      } else if (isMonthly) {
+        data = {
+          name: name.trim(),
+          description: notes.trim() || null,
+          schedule_type: "cron" as const,
+          cron_schedule: buildCron({
+            frequency: "monthly",
+            hour: timeHour,
+            minute: timeMinute,
+            dayOfMonth,
+          }),
+          tags,
+        };
+      } else {
+        data = {
+          name: name.trim(),
+          description: notes.trim() || null,
+          schedule_type: "interval" as const,
+          interval_days: resolvedIntervalDays,
+          interval_time_hour: timeHour,
+          interval_time_minute: timeMinute,
+          tags,
+        };
+      }
       try {
         await createChore.mutateAsync(data);
         toast.success("Chore created!");
@@ -649,26 +682,35 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
             </div>
           )}
 
+          {/* Once in a while hint */}
+          {schedulePreset === "once_in_a_while" && (
+            <p className="text-xs text-muted-foreground italic">
+              No fixed schedule — complete whenever you get to it.
+            </p>
+          )}
+
           {/* Time picker */}
-          <div className="flex items-center gap-2">
-            <Clock className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-            <input
-              type="time"
-              value={`${String(timeHour).padStart(2, "0")}:${String(timeMinute).padStart(2, "0")}`}
-              onChange={(e) => {
-                const [h, m] = e.target.value.split(":").map(Number);
-                if (!isNaN(h) && !isNaN(m)) {
-                  setTimeHour(h);
-                  setTimeMinute(m);
-                }
-              }}
-              className={cn(
-                "rounded-lg border border-input bg-background px-3 py-2",
-                "text-base md:text-sm text-foreground",
-                "focus:outline-none focus-visible:!outline-none focus-visible:!outline-offset-0 focus:ring-2 focus:ring-ring focus:border-transparent",
-              )}
-            />
-          </div>
+          {schedulePreset !== "once_in_a_while" && (
+            <div className="flex items-center gap-2">
+              <Clock className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+              <input
+                type="time"
+                value={`${String(timeHour).padStart(2, "0")}:${String(timeMinute).padStart(2, "0")}`}
+                onChange={(e) => {
+                  const [h, m] = e.target.value.split(":").map(Number);
+                  if (!isNaN(h) && !isNaN(m)) {
+                    setTimeHour(h);
+                    setTimeMinute(m);
+                  }
+                }}
+                className={cn(
+                  "rounded-lg border border-input bg-background px-3 py-2",
+                  "text-base md:text-sm text-foreground",
+                  "focus:outline-none focus-visible:!outline-none focus-visible:!outline-offset-0 focus:ring-2 focus:ring-ring focus:border-transparent",
+                )}
+              />
+            </div>
+          )}
         </div>
 
         {/* Notes */}
@@ -695,12 +737,14 @@ export function ChoreFormPanel({ open, chore, onClose }: ChoreFormPanelProps) {
         </div>
 
         {/* Preview */}
-        <div className="space-y-1.5">
-          <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
-            Preview
-          </label>
-          <SchedulePreview summary={summary} nextDates={nextDates} />
-        </div>
+        {schedulePreset !== "once_in_a_while" && (
+          <div className="space-y-1.5">
+            <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+              Preview
+            </label>
+            <SchedulePreview summary={summary} nextDates={nextDates} />
+          </div>
+        )}
       </div>
 
       {/* Fixed footer */}

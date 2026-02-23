@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
+import { createRootRoute, Link, Outlet, useMatchRoute } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { Plus, ListTodo, Tags } from "lucide-react";
 import { toast } from "sonner";
@@ -40,6 +40,9 @@ function RootLayoutInner() {
   } = useChoreForm();
 
   const completeChore = useCompleteChore();
+  const matchRoute = useMatchRoute();
+  const isOnChores = !!matchRoute({ to: "/chores" });
+  const isOnTags = !!matchRoute({ to: "/tags" });
 
   // Global Cmd/Ctrl+K keyboard shortcut for quick-add palette
   useEffect(() => {
@@ -84,16 +87,20 @@ function RootLayoutInner() {
 
             {/* Right side actions */}
             <div className="flex items-center gap-2">
-              <Link to="/chores">
-                <Button variant="ghost" size="icon" aria-label="View all chores">
-                  <ListTodo className="h-5 w-5" />
-                </Button>
-              </Link>
-              <Link to="/tags">
-                <Button variant="ghost" size="icon" aria-label="Manage tags">
-                  <Tags className="h-5 w-5" />
-                </Button>
-              </Link>
+              {!isOnChores && (
+                <Link to="/chores">
+                  <Button variant="ghost" size="icon" aria-label="View all chores">
+                    <ListTodo className="h-5 w-5" />
+                  </Button>
+                </Link>
+              )}
+              {!isOnTags && (
+                <Link to="/tags">
+                  <Button variant="ghost" size="icon" aria-label="Manage tags">
+                    <Tags className="h-5 w-5" />
+                  </Button>
+                </Link>
+              )}
               <DarkModeToggle />
               <UserMenu />
               {/* Cmd+K hint */}

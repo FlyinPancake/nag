@@ -25,10 +25,14 @@ function dueLabel(c: ChoreWithDue): string {
   if (c.next_due && isToday(c.next_due)) return "Due today";
   if (c.next_due && isTomorrow(c.next_due)) return "Tomorrow";
   if (c.next_due) return formatRelativeTime(c.next_due);
+  if (c.schedule_type === "once_in_a_while") return "Whenever";
   return "No schedule";
 }
 
 function schedLabel(c: ChoreWithDue): string {
+  if (c.schedule_type === "once_in_a_while") {
+    return "Once in a while";
+  }
   if (c.schedule_type === "interval" && c.interval_days) {
     return formatIntervalHuman(
       c.interval_days,

@@ -175,6 +175,15 @@ pub async fn create_chore(
                 interval_time_minute: *interval_time_minute,
             }
         }
+        ScheduleInput::OnceInAWhile {} => CreateChoreParams {
+            name: &body.name,
+            description: body.description.as_deref(),
+            schedule_type: ScheduleType::OnceInAWhile,
+            cron_schedule: None,
+            interval_days: None,
+            interval_time_hour: None,
+            interval_time_minute: None,
+        },
     };
 
     let chore = ChoreRepository::create(&pool, params)
@@ -285,6 +294,13 @@ pub async fn update_chore(
                 interval_time_minute: *interval_time_minute,
             })
         }
+        Some(ScheduleInput::OnceInAWhile {}) => Some(UpdateScheduleParams {
+            schedule_type: ScheduleType::OnceInAWhile,
+            cron_schedule: None,
+            interval_days: None,
+            interval_time_hour: None,
+            interval_time_minute: None,
+        }),
         None => None,
     };
 

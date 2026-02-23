@@ -62,6 +62,11 @@ impl ChoreService {
         match chore.schedule_type {
             ScheduleType::Cron => Self::compute_cron_due(chore, now),
             ScheduleType::Interval => Self::compute_interval_due(chore, now),
+            ScheduleType::OnceInAWhile => Some(ChoreWithDueInfo {
+                chore: chore.clone(),
+                next_due: None,
+                is_overdue: false,
+            }),
         }
     }
 

@@ -12,6 +12,8 @@ pub enum ScheduleType {
     Cron,
     /// Relative schedule based on interval from last completion (e.g., "every 30 days")
     Interval,
+    /// No fixed schedule — done whenever needed, completions are still logged
+    OnceInAWhile,
 }
 
 /// A recurring chore/task

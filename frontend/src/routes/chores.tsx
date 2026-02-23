@@ -253,13 +253,15 @@ function ChoresPage() {
                         <div className="flex items-center gap-1 text-sm text-muted-foreground">
                           <Calendar className="h-3.5 w-3.5 shrink-0" />
                           <span className="truncate">
-                            {chore.schedule_type === "interval" && chore.interval_days != null
-                              ? formatIntervalHuman(
-                                  chore.interval_days,
-                                  chore.interval_time_hour,
-                                  chore.interval_time_minute,
-                                )
-                              : formatCronHuman(chore.cron_schedule ?? "")}
+                            {chore.schedule_type === "once_in_a_while"
+                              ? "Once in a while"
+                              : chore.schedule_type === "interval" && chore.interval_days != null
+                                ? formatIntervalHuman(
+                                    chore.interval_days,
+                                    chore.interval_time_hour,
+                                    chore.interval_time_minute,
+                                  )
+                                : formatCronHuman(chore.cron_schedule ?? "")}
                           </span>
                           {nextDue && (
                             <>

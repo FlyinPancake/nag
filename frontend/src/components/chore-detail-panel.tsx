@@ -100,13 +100,15 @@ export function ChoreDetailPanel({ open, chore, onClose, onComplete }: ChoreDeta
   const isDueToday = nextDue ? isToday(nextDue) : false;
 
   const scheduleText =
-    chore.schedule_type === "interval" && chore.interval_days
-      ? formatIntervalHuman(
-          chore.interval_days,
-          chore.interval_time_hour,
-          chore.interval_time_minute,
-        )
-      : formatCronHuman(chore.cron_schedule ?? "");
+    chore.schedule_type === "once_in_a_while"
+      ? "Once in a while"
+      : chore.schedule_type === "interval" && chore.interval_days
+        ? formatIntervalHuman(
+            chore.interval_days,
+            chore.interval_time_hour,
+            chore.interval_time_minute,
+          )
+        : formatCronHuman(chore.cron_schedule ?? "");
 
   const handleEdit = () => {
     openPanelEdit(chore);
@@ -194,7 +196,9 @@ export function ChoreDetailPanel({ open, chore, onClose, onComplete }: ChoreDeta
       <div className="flex-1 overflow-y-auto px-5 py-5 space-y-5">
         {/* Schedule subtitle */}
         <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-          {chore.schedule_type === "interval" ? (
+          {chore.schedule_type === "once_in_a_while" ? (
+            <Clock className="h-3.5 w-3.5 shrink-0" />
+          ) : chore.schedule_type === "interval" ? (
             <Repeat className="h-3.5 w-3.5 shrink-0" />
           ) : (
             <Calendar className="h-3.5 w-3.5 shrink-0" />

@@ -4,720 +4,897 @@
  */
 
 export interface paths {
-  "/api/chores": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/chores": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all chores with pagination */
+        get: operations["list_chores"];
+        put?: never;
+        /** Create a new chore */
+        post: operations["create_chore"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** List all chores with pagination */
-    get: operations["list_chores"];
-    put?: never;
-    /** Create a new chore */
-    post: operations["create_chore"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/chores/due": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/chores/due": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get chores that are due or overdue */
+        get: operations["get_due_chores"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Get chores that are due or overdue */
-    get: operations["get_due_chores"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/chores/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/chores/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a single chore by ID */
+        get: operations["get_chore"];
+        /** Update a chore */
+        put: operations["update_chore"];
+        post?: never;
+        /** Delete a chore */
+        delete: operations["delete_chore"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Get a single chore by ID */
-    get: operations["get_chore"];
-    /** Update a chore */
-    put: operations["update_chore"];
-    post?: never;
-    /** Delete a chore */
-    delete: operations["delete_chore"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/chores/{id}/complete": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/chores/{id}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark a chore as complete */
+        post: operations["complete_chore"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /** Mark a chore as complete */
-    post: operations["complete_chore"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/chores/{id}/completions": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/chores/{id}/completions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List completions for a chore */
+        get: operations["list_completions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** List completions for a chore */
-    get: operations["list_completions"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/completions/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/completions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete a completion record */
+        delete: operations["delete_completion"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    post?: never;
-    /** Delete a completion record */
-    delete: operations["delete_completion"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/health": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all tags */
+        get: operations["list_tags"];
+        put?: never;
+        /** Create a new tag */
+        post: operations["create_tag"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Health check endpoint */
-    get: operations["health"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
+    "/api/tags/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update a tag */
+        put: operations["update_tag"];
+        post?: never;
+        /** Delete a tag */
+        delete: operations["delete_tag"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Health check endpoint */
+        get: operations["health"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-  schemas: {
-    /** @description Response for a single chore */
-    ChoreResponse: {
-      /** Format: date-time */
-      created_at: string;
-      /** @description Cron expression (present when schedule_type is "cron") */
-      cron_schedule?: string | null;
-      description?: string | null;
-      /** Format: uuid */
-      id: string;
-      /**
-       * Format: int32
-       * @description Interval in days (present when schedule_type is "interval")
-       */
-      interval_days?: number | null;
-      /**
-       * Format: int32
-       * @description Hour of day for interval reminders (0-23)
-       */
-      interval_time_hour?: number | null;
-      /**
-       * Format: int32
-       * @description Minute of hour for interval reminders (0-59)
-       */
-      interval_time_minute?: number | null;
-      /** Format: date-time */
-      last_completed_at?: string | null;
-      name: string;
-      /** @description Schedule type: "cron" or "interval" */
-      schedule_type: components["schemas"]["ScheduleType"];
-      /** @description Tags assigned to this chore */
-      tags: components["schemas"]["TagResponse"][];
-      /** Format: date-time */
-      updated_at: string;
-    };
-    /** @description Response for a chore with due information */
-    ChoreWithDueResponse: {
-      /** Format: date-time */
-      created_at: string;
-      /** @description Cron expression (present when schedule_type is "cron") */
-      cron_schedule?: string | null;
-      description?: string | null;
-      /** Format: uuid */
-      id: string;
-      /**
-       * Format: int32
-       * @description Interval in days (present when schedule_type is "interval")
-       */
-      interval_days?: number | null;
-      /**
-       * Format: int32
-       * @description Hour of day for interval reminders (0-23)
-       */
-      interval_time_hour?: number | null;
-      /**
-       * Format: int32
-       * @description Minute of hour for interval reminders (0-59)
-       */
-      interval_time_minute?: number | null;
-      is_overdue: boolean;
-      /** Format: date-time */
-      last_completed_at?: string | null;
-      name: string;
-      /** Format: date-time */
-      next_due?: string | null;
-      /** @description Schedule type: "cron" or "interval" */
-      schedule_type: components["schemas"]["ScheduleType"];
-      /** @description Tags assigned to this chore */
-      tags: components["schemas"]["TagResponse"][];
-      /** Format: date-time */
-      updated_at: string;
-    };
-    /** @description Request body for marking a chore as complete */
-    CompleteChoreRequest: {
-      /**
-       * Format: date-time
-       * @description When the chore was completed (defaults to now)
-       */
-      completed_at?: string | null;
-      /** @description Optional notes about this completion */
-      notes?: string | null;
-    };
-    /** @description Response for a completion record */
-    CompletionResponse: {
-      /** Format: uuid */
-      chore_id: string;
-      /** Format: date-time */
-      completed_at: string;
-      /** Format: date-time */
-      created_at: string;
-      /** Format: uuid */
-      id: string;
-      notes?: string | null;
-    };
-    /** @description Request body for creating a new chore */
-    CreateChoreRequest: components["schemas"]["ScheduleInput"] & {
-      /** @description Optional description */
-      description?: string | null;
-      /** @description Name of the chore */
-      name: string;
-      /** @description Optional list of tag names to assign */
-      tags?: string[];
-    };
-    /** @description Query parameters for due chores endpoint */
-    DueChoresQuery: {
-      /** @description Include upcoming chores (not yet overdue) */
-      include_upcoming?: boolean;
-    };
-    /** @description Health check response */
-    HealthResponse: {
-      /** @description Service status */
-      status: string;
-    };
-    /** @description Query parameters for listing chores */
-    ListChoresQuery: {
-      /**
-       * Format: uuid
-       * @description Cursor for pagination (UUID of last item)
-       */
-      cursor?: string | null;
-      /**
-       * Format: int64
-       * @description Maximum number of items to return
-       */
-      limit?: number | null;
-    };
-    /** @description Query parameters for listing completions */
-    ListCompletionsQuery: {
-      /**
-       * Format: uuid
-       * @description Cursor for pagination (UUID of last item)
-       */
-      cursor?: string | null;
-      /**
-       * Format: int64
-       * @description Maximum number of items to return
-       */
-      limit?: number | null;
-    };
-    /** @description Paginated response wrapper */
-    PaginatedResponse_ChoreResponse: {
-      items: {
-        /** Format: date-time */
-        created_at: string;
-        /** @description Cron expression (present when schedule_type is "cron") */
-        cron_schedule?: string | null;
-        description?: string | null;
-        /** Format: uuid */
-        id: string;
-        /**
-         * Format: int32
-         * @description Interval in days (present when schedule_type is "interval")
-         */
-        interval_days?: number | null;
-        /**
-         * Format: int32
-         * @description Hour of day for interval reminders (0-23)
-         */
-        interval_time_hour?: number | null;
-        /**
-         * Format: int32
-         * @description Minute of hour for interval reminders (0-59)
-         */
-        interval_time_minute?: number | null;
-        /** Format: date-time */
-        last_completed_at?: string | null;
-        name: string;
-        /** @description Schedule type: "cron" or "interval" */
-        schedule_type: components["schemas"]["ScheduleType"];
-        /** @description Tags assigned to this chore */
-        tags: components["schemas"]["TagResponse"][];
-        /** Format: date-time */
-        updated_at: string;
-      }[];
-      /** Format: uuid */
-      next_cursor?: string | null;
-    };
-    /** @description Paginated response wrapper */
-    PaginatedResponse_CompletionResponse: {
-      items: {
-        /** Format: uuid */
-        chore_id: string;
-        /** Format: date-time */
-        completed_at: string;
-        /** Format: date-time */
-        created_at: string;
-        /** Format: uuid */
-        id: string;
-        notes?: string | null;
-      }[];
-      /** Format: uuid */
-      next_cursor?: string | null;
-    };
-    /**
-     * ProblemDetails
-     * @description RFC 7807 Problem Details response
-     */
-    ProblemDetailsSchema: {
-      /**
-       * @description A human-readable explanation specific to this occurrence
-       * @example Resource not found: user with id 123
-       */
-      detail?: string | null;
-      /** @description A URI reference that identifies the specific occurrence */
-      instance?: string | null;
-      /**
-       * Format: int32
-       * @description The HTTP status code
-       * @example 404
-       */
-      status?: number | null;
-      /**
-       * @description A short, human-readable summary of the problem type
-       * @example Not Found
-       */
-      title?: string | null;
-      /**
-       * @description A URI reference that identifies the problem type
-       * @example https://httpstatuses.io/404
-       */
-      type?: string | null;
-    };
-    /** @description Schedule specification for creating/updating chores */
-    ScheduleInput:
-      | {
-          /** @description Cron schedule expression (e.g., "0 9 * * 1" for every Monday at 9am) */
-          cron_schedule: string;
-          /** @enum {string} */
-          schedule_type: "cron";
-        }
-      | {
-          /**
-           * Format: int32
-           * @description Number of days between occurrences (1-365)
-           */
-          interval_days: number;
-          /**
-           * Format: int32
-           * @description Hour of day for reminder (0-23, optional)
-           */
-          interval_time_hour?: number | null;
-          /**
-           * Format: int32
-           * @description Minute of hour for reminder (0-59, optional)
-           */
-          interval_time_minute?: number | null;
-          /** @enum {string} */
-          schedule_type: "interval";
+    schemas: {
+        /** @description Application configuration exposed to the frontend */
+        AppConfigResponse: {
+            /** @description Whether OIDC authentication is enabled */
+            auth_enabled: boolean;
         };
-    /**
-     * @description Schedule type for chores
-     * @enum {string}
-     */
-    ScheduleType: "cron" | "interval";
-    /** @description Request body for updating a chore */
-    UpdateChoreRequest: {
-      /** @description New description (optional, use null to clear) */
-      description?: string | null;
-      /** @description New name (optional) */
-      name?: string | null;
-      schedule?: null | components["schemas"]["ScheduleInput"];
-      /** @description New set of tag names (optional, replaces all tags when present) */
-      tags?: string[] | null;
+        /** @description Response for a single chore */
+        ChoreResponse: {
+            /** Format: date-time */
+            created_at: string;
+            /** @description Cron expression (present when schedule_type is "cron") */
+            cron_schedule?: string | null;
+            description?: string | null;
+            /** Format: uuid */
+            id: string;
+            /**
+             * Format: int32
+             * @description Interval in days (present when schedule_type is "interval")
+             */
+            interval_days?: number | null;
+            /**
+             * Format: int32
+             * @description Hour of day for interval reminders (0-23)
+             */
+            interval_time_hour?: number | null;
+            /**
+             * Format: int32
+             * @description Minute of hour for interval reminders (0-59)
+             */
+            interval_time_minute?: number | null;
+            /** Format: date-time */
+            last_completed_at?: string | null;
+            name: string;
+            /** @description Schedule type: "cron", "interval", or "once_in_a_while" */
+            schedule_type: components["schemas"]["ScheduleType"];
+            /** @description Tags assigned to this chore */
+            tags: components["schemas"]["TagResponse"][];
+            /** Format: date-time */
+            updated_at: string;
+        };
+        /** @description Response for a chore with due information */
+        ChoreWithDueResponse: {
+            /** Format: date-time */
+            created_at: string;
+            /** @description Cron expression (present when schedule_type is "cron") */
+            cron_schedule?: string | null;
+            description?: string | null;
+            /** Format: uuid */
+            id: string;
+            /**
+             * Format: int32
+             * @description Interval in days (present when schedule_type is "interval")
+             */
+            interval_days?: number | null;
+            /**
+             * Format: int32
+             * @description Hour of day for interval reminders (0-23)
+             */
+            interval_time_hour?: number | null;
+            /**
+             * Format: int32
+             * @description Minute of hour for interval reminders (0-59)
+             */
+            interval_time_minute?: number | null;
+            is_overdue: boolean;
+            /** Format: date-time */
+            last_completed_at?: string | null;
+            name: string;
+            /** Format: date-time */
+            next_due?: string | null;
+            /** @description Schedule type: "cron", "interval", or "once_in_a_while" */
+            schedule_type: components["schemas"]["ScheduleType"];
+            /** @description Tags assigned to this chore */
+            tags: components["schemas"]["TagResponse"][];
+            /** Format: date-time */
+            updated_at: string;
+        };
+        /** @description Request body for marking a chore as complete */
+        CompleteChoreRequest: {
+            /**
+             * Format: date-time
+             * @description When the chore was completed (defaults to now)
+             */
+            completed_at?: string | null;
+            /** @description Optional notes about this completion */
+            notes?: string | null;
+        };
+        /** @description Response for a completion record */
+        CompletionResponse: {
+            /** Format: uuid */
+            chore_id: string;
+            /** Format: date-time */
+            completed_at: string;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: uuid */
+            id: string;
+            notes?: string | null;
+        };
+        /** @description Request body for creating a new chore */
+        CreateChoreRequest: components["schemas"]["ScheduleInput"] & {
+            /** @description Optional description */
+            description?: string | null;
+            /** @description Name of the chore */
+            name: string;
+            /** @description Optional list of tag names to assign */
+            tags?: string[];
+        };
+        /** @description Request body for creating a new tag */
+        CreateTagRequest: {
+            /** @description Optional color key from the palette (e.g. "sage", "terracotta") */
+            color?: string | null;
+            /** @description Name of the tag */
+            name: string;
+        };
+        /** @description Query parameters for due chores endpoint */
+        DueChoresQuery: {
+            /** @description Include upcoming chores (not yet overdue) */
+            include_upcoming?: boolean;
+            /** @description Filter by tag name */
+            tag?: string | null;
+        };
+        /** @description Health check response */
+        HealthResponse: {
+            /** @description Service status */
+            status: string;
+        };
+        /** @description Query parameters for listing chores */
+        ListChoresQuery: {
+            /**
+             * Format: uuid
+             * @description Cursor for pagination (UUID of last item)
+             */
+            cursor?: string | null;
+            /**
+             * Format: int64
+             * @description Maximum number of items to return
+             */
+            limit?: number | null;
+            /** @description Filter by tag name */
+            tag?: string | null;
+        };
+        /** @description Query parameters for listing completions */
+        ListCompletionsQuery: {
+            /**
+             * Format: uuid
+             * @description Cursor for pagination (UUID of last item)
+             */
+            cursor?: string | null;
+            /**
+             * Format: int64
+             * @description Maximum number of items to return
+             */
+            limit?: number | null;
+        };
+        /** @description Paginated response wrapper */
+        PaginatedResponse_ChoreResponse: {
+            items: {
+                /** Format: date-time */
+                created_at: string;
+                /** @description Cron expression (present when schedule_type is "cron") */
+                cron_schedule?: string | null;
+                description?: string | null;
+                /** Format: uuid */
+                id: string;
+                /**
+                 * Format: int32
+                 * @description Interval in days (present when schedule_type is "interval")
+                 */
+                interval_days?: number | null;
+                /**
+                 * Format: int32
+                 * @description Hour of day for interval reminders (0-23)
+                 */
+                interval_time_hour?: number | null;
+                /**
+                 * Format: int32
+                 * @description Minute of hour for interval reminders (0-59)
+                 */
+                interval_time_minute?: number | null;
+                /** Format: date-time */
+                last_completed_at?: string | null;
+                name: string;
+                /** @description Schedule type: "cron", "interval", or "once_in_a_while" */
+                schedule_type: components["schemas"]["ScheduleType"];
+                /** @description Tags assigned to this chore */
+                tags: components["schemas"]["TagResponse"][];
+                /** Format: date-time */
+                updated_at: string;
+            }[];
+            /** Format: uuid */
+            next_cursor?: string | null;
+        };
+        /** @description Paginated response wrapper */
+        PaginatedResponse_CompletionResponse: {
+            items: {
+                /** Format: uuid */
+                chore_id: string;
+                /** Format: date-time */
+                completed_at: string;
+                /** Format: date-time */
+                created_at: string;
+                /** Format: uuid */
+                id: string;
+                notes?: string | null;
+            }[];
+            /** Format: uuid */
+            next_cursor?: string | null;
+        };
+        /**
+         * ProblemDetails
+         * @description RFC 7807 Problem Details response
+         */
+        ProblemDetailsSchema: {
+            /**
+             * @description A human-readable explanation specific to this occurrence
+             * @example Resource not found: user with id 123
+             */
+            detail?: string | null;
+            /** @description A URI reference that identifies the specific occurrence */
+            instance?: string | null;
+            /**
+             * Format: int32
+             * @description The HTTP status code
+             * @example 404
+             */
+            status?: number | null;
+            /**
+             * @description A short, human-readable summary of the problem type
+             * @example Not Found
+             */
+            title?: string | null;
+            /**
+             * @description A URI reference that identifies the problem type
+             * @example https://httpstatuses.io/404
+             */
+            type?: string | null;
+        };
+        /** @description Schedule specification for creating/updating chores */
+        ScheduleInput: {
+            /** @description Cron schedule expression (e.g., "0 9 * * 1" for every Monday at 9am) */
+            cron_schedule: string;
+            /** @enum {string} */
+            schedule_type: "cron";
+        } | {
+            /**
+             * Format: int32
+             * @description Number of days between occurrences (1-365)
+             */
+            interval_days: number;
+            /**
+             * Format: int32
+             * @description Hour of day for reminder (0-23, optional)
+             */
+            interval_time_hour?: number | null;
+            /**
+             * Format: int32
+             * @description Minute of hour for reminder (0-59, optional)
+             */
+            interval_time_minute?: number | null;
+            /** @enum {string} */
+            schedule_type: "interval";
+        } | {
+            /** @enum {string} */
+            schedule_type: "once_in_a_while";
+        };
+        /**
+         * @description Schedule type for chores
+         * @enum {string}
+         */
+        ScheduleType: "cron" | "interval" | "once_in_a_while";
+        /** @description Response for a single tag */
+        TagResponse: {
+            /** @description Color key from the palette (null means auto-assign based on name hash) */
+            color?: string | null;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: uuid */
+            id: string;
+            name: string;
+        };
+        /** @description Request body for updating a chore */
+        UpdateChoreRequest: {
+            /** @description New description (optional, use null to clear) */
+            description?: string | null;
+            /** @description New name (optional) */
+            name?: string | null;
+            schedule?: null | components["schemas"]["ScheduleInput"];
+            /** @description New set of tag names (optional, replaces all tags when present) */
+            tags?: string[] | null;
+        };
+        /** @description Request body for updating a tag */
+        UpdateTagRequest: {
+            /** @description New color key (optional, use null to clear) */
+            color?: string | null;
+            /** @description New name (optional) */
+            name?: string | null;
+        };
     };
-    /** @description Response for a single tag */
-    TagResponse: {
-      /** Format: date-time */
-      created_at: string;
-      /** @description Color key from the palette (null means auto-assign based on name hash) */
-      color?: string | null;
-      /** Format: uuid */
-      id: string;
-      name: string;
-    };
-    /** @description Request body for creating a new tag */
-    CreateTagRequest: {
-      /** @description Name of the tag */
-      name: string;
-      /** @description Optional color key from the palette */
-      color?: string | null;
-    };
-    /** @description Request body for updating a tag */
-    UpdateTagRequest: {
-      /** @description New name (optional) */
-      name?: string | null;
-      /** @description New color key (optional, use null to clear) */
-      color?: string | null;
-    };
-  };
-  responses: never;
-  parameters: never;
-  requestBodies: never;
-  headers: never;
-  pathItems: never;
+    responses: never;
+    parameters: never;
+    requestBodies: never;
+    headers: never;
+    pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-  list_chores: {
-    parameters: {
-      query?: {
-        /** @description Cursor for pagination */
-        cursor?: string;
-        /** @description Maximum items to return (default 20) */
-        limit?: number;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
+    list_chores: {
+        parameters: {
+            query?: {
+                /** @description Cursor for pagination */
+                cursor?: string;
+                /** @description Maximum items to return (default 20) */
+                limit?: number;
+                /** @description Filter by tag name */
+                tag?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List of chores */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedResponse_ChoreResponse"];
+                };
+            };
+        };
     };
-    requestBody?: never;
-    responses: {
-      /** @description List of chores */
-      200: {
-        headers: {
-          [name: string]: unknown;
+    create_chore: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        content: {
-          "application/json": components["schemas"]["PaginatedResponse_ChoreResponse"];
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateChoreRequest"];
+            };
         };
-      };
+        responses: {
+            /** @description Chore created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChoreResponse"];
+                };
+            };
+            /** @description Invalid request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
     };
-  };
-  create_chore: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    get_due_chores: {
+        parameters: {
+            query?: {
+                /** @description Include upcoming chores */
+                include_upcoming?: boolean;
+                /** @description Filter by tag name */
+                tag?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List of due chores */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChoreWithDueResponse"][];
+                };
+            };
+        };
     };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["CreateChoreRequest"];
-      };
+    get_chore: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Chore ID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Chore found */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChoreResponse"];
+                };
+            };
+            /** @description Chore not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
     };
-    responses: {
-      /** @description Chore created */
-      201: {
-        headers: {
-          [name: string]: unknown;
+    update_chore: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Chore ID */
+                id: string;
+            };
+            cookie?: never;
         };
-        content: {
-          "application/json": components["schemas"]["ChoreResponse"];
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateChoreRequest"];
+            };
         };
-      };
-      /** @description Invalid request */
-      400: {
-        headers: {
-          [name: string]: unknown;
+        responses: {
+            /** @description Chore updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChoreResponse"];
+                };
+            };
+            /** @description Invalid request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Chore not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
-        content?: never;
-      };
     };
-  };
-  get_due_chores: {
-    parameters: {
-      query?: {
-        /** @description Include upcoming chores */
-        include_upcoming?: boolean;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
+    delete_chore: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Chore ID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Chore deleted */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Chore not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
     };
-    requestBody?: never;
-    responses: {
-      /** @description List of due chores */
-      200: {
-        headers: {
-          [name: string]: unknown;
+    complete_chore: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Chore ID */
+                id: string;
+            };
+            cookie?: never;
         };
-        content: {
-          "application/json": components["schemas"]["ChoreWithDueResponse"][];
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompleteChoreRequest"];
+            };
         };
-      };
+        responses: {
+            /** @description Completion recorded */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompletionResponse"];
+                };
+            };
+            /** @description Chore not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
     };
-  };
-  get_chore: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Chore ID */
-        id: string;
-      };
-      cookie?: never;
+    list_completions: {
+        parameters: {
+            query?: {
+                /** @description Cursor for pagination */
+                cursor?: string;
+                /** @description Maximum items to return */
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                /** @description Chore ID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List of completions */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedResponse_CompletionResponse"];
+                };
+            };
+            /** @description Chore not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
     };
-    requestBody?: never;
-    responses: {
-      /** @description Chore found */
-      200: {
-        headers: {
-          [name: string]: unknown;
+    delete_completion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Completion ID */
+                id: string;
+            };
+            cookie?: never;
         };
-        content: {
-          "application/json": components["schemas"]["ChoreResponse"];
+        requestBody?: never;
+        responses: {
+            /** @description Completion deleted */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Completion not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
-      };
-      /** @description Chore not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
     };
-  };
-  update_chore: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Chore ID */
-        id: string;
-      };
-      cookie?: never;
+    list_tags: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List of all tags */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TagResponse"][];
+                };
+            };
+        };
     };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateChoreRequest"];
-      };
+    create_tag: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateTagRequest"];
+            };
+        };
+        responses: {
+            /** @description Tag created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TagResponse"];
+                };
+            };
+            /** @description Invalid request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Tag with this name already exists */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
     };
-    responses: {
-      /** @description Chore updated */
-      200: {
-        headers: {
-          [name: string]: unknown;
+    update_tag: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Tag ID */
+                id: string;
+            };
+            cookie?: never;
         };
-        content: {
-          "application/json": components["schemas"]["ChoreResponse"];
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateTagRequest"];
+            };
         };
-      };
-      /** @description Invalid request */
-      400: {
-        headers: {
-          [name: string]: unknown;
+        responses: {
+            /** @description Tag updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TagResponse"];
+                };
+            };
+            /** @description Invalid request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Tag not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
-        content?: never;
-      };
-      /** @description Chore not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
     };
-  };
-  delete_chore: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Chore ID */
-        id: string;
-      };
-      cookie?: never;
+    delete_tag: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Tag ID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Tag deleted */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Tag not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
     };
-    requestBody?: never;
-    responses: {
-      /** @description Chore deleted */
-      204: {
-        headers: {
-          [name: string]: unknown;
+    health: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        content?: never;
-      };
-      /** @description Chore not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HealthResponse"];
+                };
+            };
         };
-        content?: never;
-      };
     };
-  };
-  complete_chore: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Chore ID */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["CompleteChoreRequest"];
-      };
-    };
-    responses: {
-      /** @description Completion recorded */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["CompletionResponse"];
-        };
-      };
-      /** @description Chore not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  list_completions: {
-    parameters: {
-      query?: {
-        /** @description Cursor for pagination */
-        cursor?: string;
-        /** @description Maximum items to return */
-        limit?: number;
-      };
-      header?: never;
-      path: {
-        /** @description Chore ID */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description List of completions */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PaginatedResponse_CompletionResponse"];
-        };
-      };
-      /** @description Chore not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  delete_completion: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Completion ID */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Completion deleted */
-      204: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Completion not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  health: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HealthResponse"];
-        };
-      };
-    };
-  };
 }

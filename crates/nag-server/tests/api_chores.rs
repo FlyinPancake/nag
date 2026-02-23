@@ -879,3 +879,136 @@ async fn test_list_completions_chore_not_found() {
 
     response.assert_status(StatusCode::NOT_FOUND);
 }
+
+// ============================================================================
+// Once In A While Schedule
+// ============================================================================
+
+#[tokio::test]
+async fn test_create_once_in_a_while_chore() {
+    let server = common::create_test_app().await;
+
+    let chore =
+        common::create_once_in_a_while_chore(&server, "Clean the attic", Some("When needed"))
+            .await;
+
+    assert_eq!(chore.name, "Clean the attic");
+    assert_eq!(chore.description.as_deref(), Some("When needed"));
+    assert_eq!(chore.schedule_type, "once_in_a_while");
+    assert!(chore.cron_schedule.is_none());
+    assert!(chore.interval_days.is_none());
+    assert!(chore.interval_time_hour.is_none());
+    assert!(chore.interval_time_minute.is_none());
+}
+
+#[tokio::test]
+async fn test_once_in_a_while_chore_appears_in_list() {
+    let server = common::create_test_app().await;
+
+    let chore = common::create_once_in_a_while_chore(&server, "Organize garage", None).await;
+
+    let response = server.get("/api/chores").await;
+    response.assert_status_ok();
+
+    let body: PaginatedResponse<ChoreResponse> = response.json();
+    assert_eq!(body.items.len(), 1);
+    assert_eq!(body.items[0].id, chore.id);
+    assert_eq!(body.items[0].schedule_type, "once_in_a_while");
+}
+
+#[tokio::test]
+async fn test_once_in_a_while_chore_in_due_endpoint() {
+    let server = common::create_test_app().await;
+
+    common::create_once_in_a_while_chore(&server, "Clean gutters", None).await;
+
+    // With include_upcoming=true, once_in_a_while chores should appear
+    let response = server.get("/api/chores/due?include_upcoming=true").await;
+    response.assert_status_ok();
+
+    let body: Vec<ChoreWithDueResponse> = response.json();
+    assert_eq!(body.len(), 1);
+    assert_eq!(body[0].schedule_type, "once_in_a_while");
+    assert!(body[0].next_due.is_none());
+    assert!(!body[0].is_overdue);
+}
+
+#[tokio::test]
+async fn test_once_in_a_while_chore_not_overdue() {
+    let server = common::create_test_app().await;
+
+    common::create_once_in_a_while_chore(&server, "Deep clean fridge", None).await;
+
+    // Without include_upcoming, once_in_a_while chores should NOT appear
+    // (they are not overdue)
+    let response = server.get("/api/chores/due?include_upcoming=false").await;
+    response.assert_status_ok();
+
+    let body: Vec<ChoreWithDueResponse> = response.json();
+    assert!(body.is_empty());
+}
+
+#[tokio::test]
+async fn test_once_in_a_while_chore_can_be_completed() {
+    let server = common::create_test_app().await;
+
+    let chore = common::create_once_in_a_while_chore(&server, "Sort photo albums", None).await;
+
+    let completion = common::complete_chore(&server, chore.id, Some("Finally done!")).await;
+    assert_eq!(completion.chore_id, chore.id);
+    assert_eq!(completion.notes.as_deref(), Some("Finally done!"));
+
+    // Verify last_completed_at is set
+    let response = server.get(&format!("/api/chores/{}", chore.id)).await;
+    response.assert_status_ok();
+    let updated: ChoreResponse = response.json();
+    assert!(updated.last_completed_at.is_some());
+}
+
+#[tokio::test]
+async fn test_update_chore_to_once_in_a_while() {
+    let server = common::create_test_app().await;
+
+    // Create a normal interval chore
+    let chore = common::create_interval_chore(&server, "Mow the lawn", 14).await;
+    assert_eq!(chore.schedule_type, "interval");
+
+    // Switch to once_in_a_while
+    let response = server
+        .put(&format!("/api/chores/{}", chore.id))
+        .json(&serde_json::json!({
+            "schedule": {
+                "schedule_type": "once_in_a_while"
+            }
+        }))
+        .await;
+    response.assert_status_ok();
+
+    let updated: ChoreResponse = response.json();
+    assert_eq!(updated.schedule_type, "once_in_a_while");
+    assert!(updated.cron_schedule.is_none());
+    assert!(updated.interval_days.is_none());
+}
+
+#[tokio::test]
+async fn test_update_once_in_a_while_to_interval() {
+    let server = common::create_test_app().await;
+
+    let chore = common::create_once_in_a_while_chore(&server, "Paint fence", None).await;
+
+    // Switch to interval
+    let response = server
+        .put(&format!("/api/chores/{}", chore.id))
+        .json(&serde_json::json!({
+            "schedule": {
+                "schedule_type": "interval",
+                "interval_days": 90
+            }
+        }))
+        .await;
+    response.assert_status_ok();
+
+    let updated: ChoreResponse = response.json();
+    assert_eq!(updated.schedule_type, "interval");
+    assert_eq!(updated.interval_days, Some(90));
+}
